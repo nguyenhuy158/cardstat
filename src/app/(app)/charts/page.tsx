@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { CategoryChart, MonthChart } from "@/app/charts";
+import { FetchError } from "@/app/fetch-error";
 import { ChartsSkeleton } from "@/app/skeleton";
 
 type Stats = {
@@ -13,14 +14,26 @@ type Stats = {
 /** Trang "Biểu đồ" (`/charts`) — chỉ hai biểu đồ, tự fetch `/api/stats` riêng. */
 export default function ChartsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
+  // Cờ lỗi riêng, không tái dùng `stats = { byCategory: [], byMonth: [] }`:
+  // dữ liệu rỗng giả sẽ báo "chưa có dữ liệu" trong khi thật ra là fetch hỏng.
+  const [failed, setFailed] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     // `res.json<T>()` ở đây là generic của Cloudflare Workers (không phải DOM
     // chuẩn) — không truyền T thì suy luận ra `unknown`, phải chỉ rõ kiểu.
     fetch("/api/stats")
       .then((res) => res.json<Stats>())
-      .then(setStats);
-  }, []);
+      .then(setStats)
+      .catch(() => setFailed(true));
+  }, [reloadKey]);
+
+  function handleRetry() {
+    setFailed(false);
+    setReloadKey((k) => k + 1);
+  }
+
+  if (failed) return <FetchError onRetry={handleRetry} />;
 
   if (stats === null) return <ChartsSkeleton />;
 

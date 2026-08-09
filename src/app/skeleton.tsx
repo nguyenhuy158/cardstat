@@ -11,6 +11,9 @@
  * lưới) để lúc dữ liệu vào không bị nhảy layout.
  */
 
+import { OVERVIEW_DESCRIPTION } from "./copy";
+import { PAGE_SIZE } from "./pagination";
+
 /** Khối giữ chỗ thuần trang trí — luôn `aria-hidden`, không mang thông tin gì cho a11y. */
 function Block({ className = "" }: { className?: string }) {
   return <div aria-hidden className={`animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-800 ${className}`} />;
@@ -75,18 +78,19 @@ export function ChartsSkeleton() {
   );
 }
 
-const SKELETON_ROW_COUNT = 6;
-
 /**
  * Nội dung bảng "Giao dịch" lúc đang tải — thay cho `<TransactionsTable>`
  * (component không thuộc sở hữu, không sửa trực tiếp được) bằng một khối
  * cùng khung: toolbar (tìm kiếm + 2 select), dãy nút sắp xếp mobile, danh
- * sách card mobile, bảng desktop. Số dòng skeleton là con số cố định
- * (không biết trước server trả bao nhiêu dòng thật) nên có thể lệch chiều
- * cao tổng nếu trang sau đó có nhiều/ít hơn — xem ghi chú trong báo cáo.
+ * sách card mobile, bảng desktop.
+ *
+ * Số dòng lấy đúng `PAGE_SIZE` của bảng thật chứ không đoán một con số nhỏ:
+ * bảng phân trang nên trang đầu gần như luôn đủ `PAGE_SIZE` dòng, đoán ít hơn
+ * là lúc dữ liệu vào trang giãn ra cả nghìn pixel. Chỉ lệch khi người dùng có
+ * ít hơn `PAGE_SIZE` giao dịch, và lệch theo hướng co lại (ít khó chịu hơn giãn).
  */
 export function TransactionsSkeleton() {
-  const rows = Array.from({ length: SKELETON_ROW_COUNT });
+  const rows = Array.from({ length: PAGE_SIZE });
   return (
     <div aria-busy="true">
       <LoadingStatus />
@@ -157,6 +161,18 @@ export function TransactionsSkeleton() {
           </tbody>
         </table>
       </div>
+
+      {/* Thanh phân trang: bảng thật chỉ hiện nó khi có nhiều hơn PAGE_SIZE dòng.
+          Giữ chỗ luôn cho nhất quán với việc vẽ đủ PAGE_SIZE dòng ở trên — cùng
+          một giả định "trang đầu đầy". Đo được: thiếu khối này skeleton hụt đúng
+          84px so với trang thật đã tải. */}
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <Block className="h-5 w-32 self-center sm:self-auto" />
+        <div className="flex gap-2">
+          <Block className="h-10 flex-1 rounded-lg sm:h-7 sm:w-16 sm:flex-none" />
+          <Block className="h-10 flex-1 rounded-lg sm:h-7 sm:w-16 sm:flex-none" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -187,9 +203,7 @@ export function AppRouteSkeleton({ pathname }: { pathname: string }) {
   if (pathname === "/") {
     return (
       <>
-        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-          Import sao kê PDF, tự động phân loại và xem thống kê chi tiêu
-        </p>
+        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">{OVERVIEW_DESCRIPTION}</p>
         <OverviewSkeleton />
       </>
     );

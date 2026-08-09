@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-table";
 import { categoryChipStyle } from "./colors";
 import { formatDate, formatDateTime, formatMonth } from "./format";
+import { PAGE_SIZE } from "./pagination";
 import { Select } from "./select";
 
 export type Transaction = {
@@ -45,8 +46,6 @@ const features = tableFeatures({
 });
 
 const helper = createColumnHelper<typeof features, Transaction>();
-
-const PAGE_SIZE = 20;
 
 /** Cột canh phải: số tiền và nút xóa. */
 const RIGHT_ALIGNED = new Set(["amount", "actions"]);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { FetchError } from "@/app/fetch-error";
 import { TransactionsSkeleton } from "@/app/skeleton";
 import { TransactionsTable, type Transaction } from "@/app/transactions-table";
 
@@ -26,6 +27,8 @@ export default function TransactionsPage() {
   // sau đó giữ nguyên bảng cũ trong lúc chờ dữ liệu mới, không nhấp nháy lại
   // skeleton mỗi lần đổi tháng/danh mục.
   const [loading, setLoading] = useState(true);
+  // Fetch hỏng mà không bắt thì `loading` kẹt ở true và skeleton nhấp nháy mãi.
+  const [failed, setFailed] = useState(false);
   const [monthFilter, setMonthFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   // Tăng lên sau khi xoá một giao dịch để hai effect fetch dưới đây chạy lại
@@ -37,7 +40,10 @@ export default function TransactionsPage() {
   useEffect(() => {
     fetch("/api/stats")
       .then((res) => res.json<StatsForFilters>())
-      .then(setStatsForFilters);
+      .then(setStatsForFilters)
+      // Hỏng thì hai select lọc rỗng (đã có fallback EMPTY_*), bảng vẫn dùng
+      // được — không dựng màn hình lỗi cho cả trang chỉ vì mất danh sách lọc.
+      .catch(() => {});
   }, [refreshKey]);
 
   useEffect(() => {
@@ -49,6 +55,10 @@ export default function TransactionsPage() {
       .then((data) => {
         setTransactions(data);
         setLoading(false);
+      })
+      .catch(() => {
+        setFailed(true);
+        setLoading(false);
       });
   }, [monthFilter, categoryFilter, refreshKey]);
 
@@ -57,11 +67,19 @@ export default function TransactionsPage() {
     setRefreshKey((k) => k + 1);
   }
 
+  function handleRetry() {
+    setFailed(false);
+    setLoading(true);
+    setRefreshKey((k) => k + 1);
+  }
+
   return (
     <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <h2 className="mb-4 font-semibold">Danh sách giao dịch</h2>
 
-      {loading ? (
+      {failed ? (
+        <FetchError onRetry={handleRetry} />
+      ) : loading ? (
         <TransactionsSkeleton />
       ) : (
         <TransactionsTable

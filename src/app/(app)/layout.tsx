@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { authClient } from "@/infrastructure/auth/auth-client";
 
 import { BottomNav } from "../bottom-nav";
-import { AppRouteSkeleton, UsernameSkeleton } from "../skeleton";
+import { AppRouteSkeleton, SkeletonBlock, UsernameSkeleton } from "../skeleton";
 import { DesktopNav } from "./desktop-nav";
 
 /**
@@ -48,9 +48,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
       {/* Thanh header sticky gọn cho mobile: tiêu đề bên trái, người dùng + đăng xuất bên phải.
           Trên sm+ có thêm nav ngang vì bottom-nav bị ẩn ở desktop.
-          Tiêu đề, nav và nút đăng xuất không phụ thuộc dữ liệu session nên vẫn
-          hiện thật kể cả lúc `sessionPending` — chỉ tên người dùng cần khối
-          skeleton vì nó đọc trực tiếp từ session. */}
+          Tiêu đề và nav giữ nguyên kể cả lúc `sessionPending` (không phụ thuộc
+          session); tên người dùng và nút đăng xuất thì thành skeleton vì cả hai
+          chỉ đúng khi đã đăng nhập. */}
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
         <div className="mx-auto flex items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:max-w-5xl">
           <div className="flex min-w-0 items-center gap-6">
@@ -61,18 +61,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
             {sessionPending ? (
-              <UsernameSkeleton />
+              <>
+                <UsernameSkeleton />
+                {/* Nút "Đăng xuất" cũng phải là skeleton: chưa biết có đăng nhập
+                    hay không mà đã bày nút của trạng thái đã đăng nhập thì khách
+                    chưa đăng nhập sẽ thấy nhoáng một giao diện sai rồi mới bị
+                    đẩy sang /login. Cùng h-11 + w để không nhảy layout khi đổi. */}
+                <SkeletonBlock className="h-11 w-[5.5rem] rounded-lg" />
+              </>
             ) : (
-              <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem] dark:text-zinc-400">
-                {session?.user.displayUsername || session?.user.name}
-              </span>
+              <>
+                <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem] dark:text-zinc-400">
+                  {session?.user.displayUsername || session?.user.name}
+                </span>
+                <button
+                  onClick={handleSignOut}
+                  className="flex h-11 items-center rounded-lg border border-zinc-200 px-3 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                >
+                  Đăng xuất
+                </button>
+              </>
             )}
-            <button
-              onClick={handleSignOut}
-              className="flex h-11 items-center rounded-lg border border-zinc-200 px-3 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
-              Đăng xuất
-            </button>
           </div>
         </div>
       </header>
