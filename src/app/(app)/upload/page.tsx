@@ -1,0 +1,63 @@
+"use client";
+
+import { useRef, useState } from "react";
+
+/**
+ * Trang "Nhập" (`/upload`) — chỉ có khu vực tải PDF lên. Không còn hiển thị
+ * tổng hợp/biểu đồ/bảng ở đây nữa (đã tách sang route riêng), nên sau khi
+ * nhập thành công chỉ báo số giao dịch và gợi ý người dùng qua "Tổng quan"
+ * hoặc "Giao dịch" để xem chi tiết.
+ */
+export default function UploadPage() {
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setMessage("");
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = (await res.json()) as { error?: string; inserted?: number };
+      if (!res.ok) {
+        setMessage(`Lỗi: ${data.error}`);
+      } else {
+        setMessage(
+          `Đã nhập ${data.inserted} giao dịch từ ${file.name}. Xem "Tổng quan" hoặc "Giao dịch" để biết chi tiết.`,
+        );
+      }
+    } catch {
+      setMessage("Lỗi khi tải file lên");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  return (
+    <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
+      <label
+        className={`flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 text-sm font-medium text-zinc-600 transition hover:border-zinc-400 hover:bg-zinc-50 focus-within:border-zinc-400 focus-within:ring-2 focus-within:ring-zinc-900/20 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-800 dark:focus-within:ring-zinc-100/20 ${uploading ? "pointer-events-none opacity-60" : ""}`}
+      >
+        {uploading ? "Đang xử lý..." : "Chạm để chọn file PDF sao kê"}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,application/pdf"
+          onChange={handleUpload}
+          disabled={uploading}
+          className="sr-only"
+        />
+      </label>
+      {message && <p className="mt-3 text-sm">{message}</p>}
+      <p className="mt-3 text-xs text-zinc-400">
+        Hỗ trợ file PDF sao kê ngân hàng/thẻ tín dụng. Hệ thống tự dò từng dòng có ngày và số tiền để nhận diện giao dịch.
+      </p>
+    </section>
+  );
+}
