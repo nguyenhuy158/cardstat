@@ -3,11 +3,36 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* --- Design tokens dùng chung (semantic) ---
+     Đây là bộ từ vựng màu chung cho toàn app, tách khỏi các chuỗi Tailwind
+     zinc-200/zinc-800 lặp lại ở từng component. Các file component hiện tại
+     bị "khoá" (đang có agent khác sửa) nên token này CHƯA được áp dụng vào
+     đó — coi như vốn từ chuẩn bị cho một lượt dọn dẹp sau. Giá trị được chọn
+     khớp với các lớp zinc/blue đang dùng thực tế trong app để khi refactor
+     không đổi màu nhìn thấy được. */
+  --surface: #ffffff; /* nền thẻ/card, dropdown, form */
+  --surface-muted: #fafafa; /* nền trang, header, bottom nav (≈ zinc-50) */
+  --border: #e4e4e7; /* viền mặc định (≈ zinc-200) */
+  --border-muted: #f4f4f5; /* viền mờ hơn, phân tách hàng trong bảng (≈ zinc-100) */
+  --text-muted: #71717a; /* chữ phụ — đạt AA 4.5:1 trên nền trắng (≈ zinc-500) */
+  --text-subtle: #a1a1aa; /* chữ rất phụ/trang trí — KHÔNG đảm bảo AA, chỉ dùng cho icon/placeholder (≈ zinc-400) */
+  --accent: #2563eb; /* màu nhấn, khớp với blue-600 đang dùng ở trang đăng nhập */
+  --accent-foreground: #ffffff; /* chữ đặt trên nền accent */
+  --focus-ring: #2563eb; /* màu vòng focus, dùng chung cho cả trang */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   /* Be Vietnam Pro trước, Plus Jakarta Sans làm fallback, rồi mới tới font hệ thống */
   --font-sans: var(--font-be-vietnam-pro), var(--font-plus-jakarta-sans),
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -18,7 +43,23 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    --surface: #18181b; /* zinc-900 */
+    --surface-muted: #09090b; /* zinc-950 */
+    --border: #27272a; /* zinc-800 */
+    --border-muted: rgba(39, 39, 42, 0.5); /* zinc-800/50 */
+    --text-muted: #a1a1aa; /* zinc-400 — đạt AA 4.5:1+ trên nền zinc-900 */
+    --text-subtle: #71717a; /* zinc-500 — chỉ ~3.7:1 trên zinc-900, không dùng cho chữ chính */
+    --accent: #60a5fa; /* blue-400, đủ sáng để tương phản trên nền tối */
+    --accent-foreground: #0a0a0a;
+    --focus-ring: #60a5fa;
   }
+}
+
+/* Cho phép form control, scrollbar và Radix popover tự đổi theo theme của hệ
+   thống thay vì luôn giữ giao diện sáng khi trang đang ở dark mode. */
+:root {
+  color-scheme: light dark;
 }
 
 body {
@@ -29,4 +70,40 @@ body {
      hiển thị rõ nét hơn, giống cách chia-keo render font. */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  /* Bỏ khung xanh mặc định khi chạm trên mobile (Android/Chrome); dùng
+     :focus-visible ở dưới để giữ chỉ báo cho người dùng bàn phím. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Vòng focus rõ ràng, đồng nhất cho toàn app — thay cho việc mỗi component
+   tự định nghĩa (hoặc không định nghĩa) focus riêng lẻ. Chỉ hiện khi điều
+   hướng bằng bàn phím (:focus-visible), không hiện khi bấm chuột/chạm. */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Các phần tử có thể bấm: bỏ trễ double-tap-to-zoom trên mobile để thao tác
+   chạm phản hồi ngay, không ảnh hưởng tới việc pinch-zoom toàn trang. */
+a,
+button,
+input,
+select,
+textarea,
+summary,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Người dùng yêu cầu giảm hiệu ứng chuyển động (prefers-reduced-motion) thì
+   tắt hầu hết animation/transition trên toàn app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

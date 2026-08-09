@@ -22,13 +22,30 @@ export default function UploadPage() {
     formData.append("file", file);
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = (await res.json()) as { error?: string; inserted?: number };
+      const data = (await res.json()) as {
+        error?: string;
+        inserted?: number;
+        skipped?: number;
+        message?: string;
+      };
       if (!res.ok) {
         setMessage(`Lỗi: ${data.error}`);
       } else {
-        setMessage(
-          `Đã nhập ${data.inserted} giao dịch từ ${file.name}. Xem "Tổng quan" hoặc "Giao dịch" để biết chi tiết.`,
-        );
+        const inserted = data.inserted ?? 0;
+        const skipped = data.skipped ?? 0;
+        // Nhập lại đúng file cũ thì không có dòng nào mới — phải nói rõ là do
+        // trùng, chứ báo "đã nhập 0 giao dịch" người dùng sẽ tưởng hỏng.
+        if (inserted === 0 && skipped > 0) {
+          setMessage(data.message || `Toàn bộ ${skipped} giao dịch trong file đã có sẵn, không có gì mới.`);
+        } else if (skipped > 0) {
+          setMessage(
+            `Đã nhập ${inserted} giao dịch từ ${file.name}, bỏ qua ${skipped} giao dịch trùng. Xem "Tổng quan" hoặc "Giao dịch" để biết chi tiết.`,
+          );
+        } else {
+          setMessage(
+            `Đã nhập ${inserted} giao dịch từ ${file.name}. Xem "Tổng quan" hoặc "Giao dịch" để biết chi tiết.`,
+          );
+        }
       }
     } catch {
       setMessage("Lỗi khi tải file lên");
@@ -54,7 +71,11 @@ export default function UploadPage() {
           className="sr-only"
         />
       </label>
-      {message && <p className="mt-3 text-sm">{message}</p>}
+      {message && (
+        <p role="status" className="mt-3 text-sm">
+          {message}
+        </p>
+      )}
       <p className="mt-3 text-xs text-zinc-400">
         Hỗ trợ file PDF sao kê ngân hàng/thẻ tín dụng. Hệ thống tự dò từng dòng có ngày và số tiền để nhận diện giao dịch.
       </p>
