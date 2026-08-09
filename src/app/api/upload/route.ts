@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import db from "@/lib/db";
-import { parseStatementCsv } from "@/lib/parseStatement";
+import { getTransactionRepository } from "@/infrastructure/persistence/get-repository";
+import { extractPdfText } from "@/infrastructure/parsing/pdf-text-extractor";
+import { importStatement, EmptyStatementError } from "@/application/use-cases/import-statement";
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -8,30 +9,19 @@ export async function POST(req: NextRequest) {
   if (!file) {
     return NextResponse.json({ error: "Thiếu file" }, { status: 400 });
   }
-
-  const text = await file.text();
-  const rows = parseStatementCsv(text);
-
-  if (rows.length === 0) {
-    return NextResponse.json(
-      { error: "Không đọc được giao dịch nào từ file. Kiểm tra lại định dạng CSV." },
-      { status: 400 }
-    );
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    return NextResponse.json({ error: "Chỉ hỗ trợ file PDF" }, { status: 400 });
   }
 
-  const insert = db.prepare(
-    `INSERT INTO transactions (date, description, amount, category, source_file) VALUES (?, ?, ?, ?, ?)`
-  );
-  db.exec("BEGIN");
+  const buffer = await file.arrayBuffer();
+  const repo = getTransactionRepository();
   try {
-    for (const r of rows) {
-      insert.run(r.date, r.description, r.amount, r.category, file.name);
-    }
-    db.exec("COMMIT");
+    const inserted = await importStatement(repo, extractPdfText, buffer, file.name);
+    return NextResponse.json({ inserted });
   } catch (err) {
-    db.exec("ROLLBACK");
+    if (err instanceof EmptyStatementError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
+    }
     throw err;
   }
-
-  return NextResponse.json({ inserted: rows.length });
 }

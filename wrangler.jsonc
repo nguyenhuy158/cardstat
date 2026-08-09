@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "credit-card-tracker",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "REPLACE_WITH_YOUR_SHARED_D1_DATABASE_NAME",
+      "database_id": "REPLACE_WITH_YOUR_SHARED_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

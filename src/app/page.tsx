@@ -73,7 +73,7 @@ export default function Home() {
     formData.append("file", file);
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string; inserted?: number };
       if (!res.ok) {
         setMessage(`Lỗi: ${data.error}`);
       } else {
@@ -103,17 +103,17 @@ export default function Home() {
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <header className="mb-8 flex flex-col gap-1">
           <h1 className="text-2xl font-bold">Thống kê chi tiêu thẻ tín dụng</h1>
-          <p className="text-sm text-zinc-500">Import sao kê CSV, tự động phân loại và xem thống kê chi tiêu</p>
+          <p className="text-sm text-zinc-500">Import sao kê PDF, tự động phân loại và xem thống kê chi tiêu</p>
         </header>
 
         {/* Upload */}
         <section className="mb-8 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="mb-3 font-semibold">Nhập sao kê (CSV)</h2>
+          <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
           <div className="flex flex-wrap items-center gap-3">
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv"
+              accept=".pdf,application/pdf"
               onChange={handleUpload}
               disabled={uploading}
               className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-zinc-700 dark:file:bg-zinc-100 dark:file:text-zinc-900"
@@ -122,7 +122,7 @@ export default function Home() {
           </div>
           {message && <p className="mt-3 text-sm">{message}</p>}
           <p className="mt-3 text-xs text-zinc-400">
-            Hỗ trợ file CSV có cột ngày / mô tả / số tiền (hoặc ghi nợ-ghi có riêng). Hệ thống tự nhận diện tên cột tiếng Anh hoặc tiếng Việt.
+            Hỗ trợ file PDF sao kê ngân hàng/thẻ tín dụng. Hệ thống tự dò từng dòng có ngày và số tiền để nhận diện giao dịch.
           </p>
         </section>
 
@@ -260,7 +260,7 @@ export default function Home() {
                 {transactions.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-zinc-400">
-                      Chưa có giao dịch nào. Hãy tải lên file sao kê CSV ở trên.
+                      Chưa có giao dịch nào. Hãy tải lên file sao kê PDF ở trên.
                     </td>
                   </tr>
                 )}
