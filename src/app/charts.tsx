@@ -92,7 +92,7 @@ export function CategoryChart({ data }: { data: { category: string; total: numbe
   const marginRight = isCompact ? 16 : 56;
 
   return (
-    <div className="h-72 w-full text-zinc-500 sm:h-64">
+    <div className="h-72 w-full text-zinc-500 sm:h-64 dark:text-zinc-400">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} layout="vertical" margin={{ top: 4, right: marginRight, bottom: 4, left: 4 }}>
           <CartesianGrid horizontal={false} stroke={AXIS} strokeOpacity={0.15} />
@@ -121,7 +121,7 @@ export function CategoryChart({ data }: { data: { category: string; total: numbe
               dataKey="total"
               position="right"
               formatter={(v: unknown) => formatCompact(Number(v))}
-              className="hidden fill-zinc-500 text-[11px] tabular-nums sm:inline"
+              className="hidden fill-zinc-500 text-[11px] tabular-nums sm:inline dark:fill-zinc-400"
             />
           </Bar>
         </BarChart>
@@ -140,7 +140,7 @@ export function MonthChart({ data }: { data: { month: string; spend: number; inc
   const tickInterval = isCompact && data.length > 6 ? Math.ceil(data.length / 4) - 1 : "preserveEnd";
 
   return (
-    <div className="h-56 w-full text-zinc-500 sm:h-64">
+    <div className="h-56 w-full text-zinc-500 sm:h-64 dark:text-zinc-400">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 4, right: 8, bottom: 4, left: 4 }} barGap={2}>
           <CartesianGrid vertical={false} stroke={AXIS} strokeOpacity={0.15} />

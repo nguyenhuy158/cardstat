@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (sessionPending || !signedIn) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 text-sm text-zinc-500 dark:bg-zinc-950">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 text-sm text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
         Đang kiểm tra đăng nhập...
       </div>
     );
@@ -51,7 +51,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <DesktopNav />
           </div>
           <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
-            <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem]">
+            <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem] dark:text-zinc-400">
               {session?.user.displayUsername || session?.user.name}
             </span>
             <button

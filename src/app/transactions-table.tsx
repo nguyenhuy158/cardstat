@@ -93,7 +93,13 @@ const columns = helper.columns([
     cell: (info) => {
       const amount = info.getValue();
       return (
-        <span className={amount < 0 ? "text-red-500" : "text-green-500"}>{formatVnd(amount)}</span>
+        <span
+          className={
+            amount < 0 ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"
+          }
+        >
+          {formatVnd(amount)}
+        </span>
       );
     },
   }),
@@ -104,7 +110,7 @@ const columns = helper.columns([
     cell: (info) => (
       <button
         onClick={() => info.table.options.meta?.onDelete(info.row.original.id)}
-        className="text-xs text-zinc-400 hover:text-red-500"
+        className="text-xs text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
       >
         Xóa
       </button>
@@ -113,7 +119,9 @@ const columns = helper.columns([
 ]);
 
 function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
-  if (!direction) return <span className="text-zinc-300 dark:text-zinc-600">↕</span>;
+  // Mũi tên "chưa sắp xếp" là chỉ báo có thể sort, không phải chữ nội dung —
+  // zinc-400/500 đủ thấy mà vẫn nhạt hơn hẳn nhãn cột (zinc-500/400 đậm hơn).
+  if (!direction) return <span className="text-zinc-400 dark:text-zinc-500">↕</span>;
   return <span>{direction === "asc" ? "↑" : "↓"}</span>;
 }
 
@@ -267,7 +275,9 @@ export function TransactionsTable({
               <div className="flex flex-col items-end gap-1">
                 <span
                   className={`text-sm font-semibold whitespace-nowrap ${
-                    t.amount < 0 ? "text-red-500" : "text-green-500"
+                    t.amount < 0
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-green-700 dark:text-green-400"
                   }`}
                 >
                   {formatVnd(t.amount)}
@@ -275,7 +285,7 @@ export function TransactionsTable({
                 <button
                   onClick={() => table.options.meta?.onDelete(t.id)}
                   aria-label="Xóa giao dịch"
-                  className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-400 hover:text-red-500 dark:text-zinc-500"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
                 >
                   <DeleteIcon />
                 </button>
@@ -284,7 +294,7 @@ export function TransactionsTable({
           );
         })}
         {rows.length === 0 && (
-          <div className="py-8 text-center text-sm text-zinc-400">
+          <div className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
             {data.length === 0
               ? "Chưa có giao dịch nào. Hãy tải lên file sao kê PDF ở trên."
               : "Không có giao dịch nào khớp từ khóa tìm kiếm."}
@@ -299,7 +309,7 @@ export function TransactionsTable({
             {table.getHeaderGroups().map((group) => (
               <tr
                 key={group.id}
-                className="border-b border-zinc-200 text-left text-zinc-500 dark:border-zinc-800"
+                className="border-b border-zinc-200 text-left text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"
               >
                 {group.headers.map((header) => (
                   <th
@@ -340,7 +350,7 @@ export function TransactionsTable({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={table.getAllColumns().length} className="py-8 text-center text-zinc-400">
+                <td colSpan={table.getAllColumns().length} className="py-8 text-center text-zinc-500 dark:text-zinc-400">
                   {data.length === 0
                     ? "Chưa có giao dịch nào. Hãy tải lên file sao kê PDF ở trên."
                     : "Không có giao dịch nào khớp từ khóa tìm kiếm."}
@@ -352,7 +362,7 @@ export function TransactionsTable({
       </div>
 
       {filteredCount > pageSize && (
-        <div className="mt-4 flex flex-col gap-2 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-2 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between dark:text-zinc-400">
           <span className="text-center sm:text-left">
             {firstRow}–{lastRow} của {filteredCount}
           </span>

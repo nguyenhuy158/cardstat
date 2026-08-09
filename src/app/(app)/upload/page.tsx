@@ -76,7 +76,7 @@ export default function UploadPage() {
           {message}
         </p>
       )}
-      <p className="mt-3 text-xs text-zinc-400">
+      <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
         Hỗ trợ file PDF sao kê ngân hàng/thẻ tín dụng. Hệ thống tự dò từng dòng có ngày và số tiền để nhận diện giao dịch.
       </p>
     </section>

@@ -105,7 +105,7 @@ export function Select({
         >
           {/* Radix tự ẩn hai nút này khi danh sách không cuộn được, nên không
               cần tự kiểm tra overflow ở đây. */}
-          <RadixSelect.ScrollUpButton className="flex h-6 items-center justify-center text-zinc-400">
+          <RadixSelect.ScrollUpButton className="flex h-6 items-center justify-center text-zinc-500 dark:text-zinc-400">
             <ScrollUpIcon />
           </RadixSelect.ScrollUpButton>
           <RadixSelect.Viewport className="p-1">
@@ -116,7 +116,7 @@ export function Select({
               </Item>
             ))}
           </RadixSelect.Viewport>
-          <RadixSelect.ScrollDownButton className="flex h-6 items-center justify-center text-zinc-400">
+          <RadixSelect.ScrollDownButton className="flex h-6 items-center justify-center text-zinc-500 dark:text-zinc-400">
             <ScrollDownIcon />
           </RadixSelect.ScrollDownButton>
         </RadixSelect.Content>

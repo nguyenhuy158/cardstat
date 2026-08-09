@@ -225,7 +225,7 @@ export function LoginForm() {
         <h1 className="mt-2 text-2xl font-semibold">
           {mode === "sign-in" ? "Đăng nhập" : "Đăng ký"}
         </h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
           {mode === "sign-in"
             ? "Đăng nhập bằng username và mật khẩu."
             : "Tạo tài khoản mới để quản lý sao kê của riêng bạn."}
@@ -336,7 +336,9 @@ export function LoginForm() {
           sẽ nhận lỗi PROVIDER_NOT_FOUND và hiển thị thông báo tiếng Việt. */}
       <div className="my-4 flex items-center gap-3">
         <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-        <span className="text-xs font-medium uppercase tracking-wide text-zinc-400">hoặc</span>
+        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          hoặc
+        </span>
         <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
       </div>
       <button

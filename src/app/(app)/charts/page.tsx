@@ -22,7 +22,7 @@ export default function ChartsPage() {
   }, []);
 
   if (stats && stats.byCategory.length === 0) {
-    return <p className="text-sm text-zinc-500">Chưa có dữ liệu để vẽ biểu đồ. Hãy nhập sao kê trước.</p>;
+    return <p className="text-sm text-zinc-500 dark:text-zinc-400">Chưa có dữ liệu để vẽ biểu đồ. Hãy nhập sao kê trước.</p>;
   }
 
   return (
