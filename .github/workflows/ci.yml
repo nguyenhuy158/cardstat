@@ -54,6 +54,19 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      # tsconfig.json includes ".next/types/**/*.ts" and
+      # ".next/dev/types/**/*.ts", and next-env.d.ts (gitignored) imports
+      # "./.next/dev/types/routes.d.ts" directly — none of that exists in a
+      # fresh checkout. Next.js 16 ships `next typegen` specifically for
+      # this: it generates those route/layout/next-env types without
+      # running a full build (see
+      # node_modules/next/dist/docs/01-app/03-api-reference/05-config/02-typescript.md,
+      # "Route-Aware Type Helpers" / "next-env.d.ts" sections). Skipping this
+      # step makes the typecheck below fail on every run for a missing-file
+      # reason that has nothing to do with real type errors.
+      - name: Generate Next.js route/env types
+        run: pnpm exec next typegen
+
       - name: Typecheck
         run: pnpm exec tsc --noEmit -p tsconfig.json
 
@@ -120,8 +133,20 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Avoid ANSI color codes landing inside the `grep -q "No migrations
+          # to apply"` check below and turning a clean result into a false
+          # "pending migrations" alarm.
+          NO_COLOR: "1"
         run: |
           set -uo pipefail
+          # GitHub Actions runs `run:` blocks as `bash -e {0}` by default.
+          # `set +e` here is deliberate: the wrangler call below is expected
+          # to fail sometimes (that is the whole point of this check), and
+          # `-e` would abort the script at the `OUTPUT="$(...)"` assignment
+          # before the exit code can be inspected, skipping the "could not
+          # determine migration state" vs. "migrations pending" distinction
+          # entirely.
+          set +e
 
           if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
             echo "::warning::CLOUDFLARE_API_TOKEN secret is not set — skipping the D1 migrations check. Add the secret (see README) to enable it."
@@ -173,6 +198,12 @@ jobs:
       - name: Smoke test (retries while confirming the fingerprint changed)
         run: |
           set -uo pipefail
+          # GitHub Actions runs `run:` blocks as `bash -e {0}` by default.
+          # `set +e` is deliberate here: every attempt in the loop below is
+          # allowed to fail (that is what "retry" means) — with `-e` active,
+          # the very first failing `LAST_OUTPUT="$(...)"` assignment would
+          # kill the step immediately instead of looping.
+          set +e
           URL="https://cardstats.huyab.click"
           ATTEMPTS=10
           DELAY=15
