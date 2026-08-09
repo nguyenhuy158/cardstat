@@ -1,56 +1,33 @@
 /**
- * Các route /api đều đòi session, nên CLI phải đăng nhập trước rồi mang cookie
- * theo. Thông tin đăng nhập lấy từ env CARDSTAT_USER / CARDSTAT_PASS.
+ * Các route /api đều đòi cookie SSO `huyab_sso` của auth.huyab.click. CLI không
+ * tự đăng nhập được (SSO là luồng OAuth trên trình duyệt), nên phải mang sẵn
+ * cookie: mở app trên trình duyệt, copy giá trị cookie `huyab_sso` trong
+ * devtools rồi đặt vào env HUYAB_SSO_COOKIE.
  */
 
-let cookieHeader = null;
+const COOKIE_NAME = "huyab_sso";
 
-async function signIn(baseUrl) {
-  const username = process.env.CARDSTAT_USER;
-  const password = process.env.CARDSTAT_PASS;
-  if (!username || !password) {
-    console.error("Thiếu CARDSTAT_USER / CARDSTAT_PASS. Ví dụ:");
-    console.error("  CARDSTAT_USER=huy CARDSTAT_PASS=... pnpm tx");
+function cookieHeader() {
+  const token = process.env.HUYAB_SSO_COOKIE;
+  if (!token) {
+    console.error(`Thiếu HUYAB_SSO_COOKIE. Lấy giá trị cookie "${COOKIE_NAME}" trong devtools rồi:`);
+    console.error("  HUYAB_SSO_COOKIE=... pnpm tx");
     process.exit(1);
   }
-
-  // Better Auth từ chối request không có Origin (chống CSRF), mà fetch trong
-  // Node thì không tự gắn — phải khai báo tay và origin đó phải nằm trong
-  // trustedOrigins của createAuth.
-  const res = await fetch(new URL("/api/auth/sign-in/username", baseUrl), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      origin: new URL(baseUrl).origin,
-    },
-    body: JSON.stringify({ username, password }),
-  });
-
-  if (!res.ok) {
-    let detail = "";
-    try {
-      const body = await res.json();
-      detail = body.message || body.error || "";
-    } catch {
-      detail = await res.text();
-    }
-    console.error(`Đăng nhập thất bại (${res.status}): ${detail}`);
-    process.exit(1);
-  }
-
-  const cookies = res.headers.getSetCookie();
-  if (cookies.length === 0) {
-    console.error("Đăng nhập xong nhưng server không trả cookie session.");
-    process.exit(1);
-  }
-  return cookies.map((c) => c.split(";")[0]).join("; ");
+  return `${COOKIE_NAME}=${token}`;
 }
 
-/** fetch có kèm cookie session; lần gọi đầu tiên sẽ tự đăng nhập. */
+/** fetch có kèm cookie SSO. Báo lỗi rõ khi cookie thiếu hoặc đã hết hạn. */
 export async function authFetch(baseUrl, url, init = {}) {
-  cookieHeader ??= await signIn(baseUrl);
-  return fetch(url, {
+  const res = await fetch(url, {
     ...init,
-    headers: { ...init.headers, cookie: cookieHeader },
+    headers: { ...init.headers, cookie: cookieHeader() },
   });
+
+  if (res.status === 401) {
+    console.error("Cookie SSO không hợp lệ hoặc đã hết hạn — lấy lại giá trị mới từ devtools.");
+    process.exit(1);
+  }
+
+  return res;
 }

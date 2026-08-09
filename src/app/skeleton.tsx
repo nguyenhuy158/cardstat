@@ -11,7 +11,6 @@
  * lưới) để lúc dữ liệu vào không bị nhảy layout.
  */
 
-import { OVERVIEW_DESCRIPTION } from "./copy";
 import { PAGE_SIZE } from "./pagination";
 
 /** Khối giữ chỗ thuần trang trí — luôn `aria-hidden`, không mang thông tin gì cho a11y. */
@@ -174,89 +173,6 @@ export function TransactionsSkeleton() {
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * Skeleton "chung" cho `layout.tsx` lúc `sessionPending` — trước khi biết
- * route nào, dùng khối trung tính (không giả định trước lưới thẻ hay bảng)
- * để không đoán sai hình dạng trang đích.
- */
-export function GenericContentSkeleton() {
-  return (
-    <div aria-busy="true">
-      <LoadingStatus />
-      <Block className="mb-4 h-4 w-48" />
-      <Block className="h-32 w-full" />
-    </div>
-  );
-}
-
-/**
- * Skeleton khớp route cho vùng nội dung của layout lúc `sessionPending` —
- * dùng `usePathname()` để chọn hình dạng gần với trang đích thay vì một khối
- * lấp chỗ chung, đỡ nhảy layout hơn khi session xác nhận xong và trang thật
- * mount. Tái dùng đúng các skeleton mà từng trang tự dùng khi `stats`/dữ liệu
- * còn null, cộng thêm phần khung tĩnh (section/h2) mà các trang đó tự vẽ.
- */
-export function AppRouteSkeleton({ pathname }: { pathname: string }) {
-  if (pathname === "/") {
-    return (
-      <>
-        <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">{OVERVIEW_DESCRIPTION}</p>
-        <OverviewSkeleton />
-      </>
-    );
-  }
-
-  if (pathname.startsWith("/charts")) return <ChartsSkeleton />;
-
-  if (pathname.startsWith("/transactions")) {
-    return (
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-4 font-semibold">Danh sách giao dịch</h2>
-        <TransactionsSkeleton />
-      </section>
-    );
-  }
-
-  if (pathname.startsWith("/upload")) {
-    // Hai thẻ, đúng như trang thật: khu chọn file và lịch sử nhập. Thiếu thẻ
-    // dưới thì nội dung nhảy xuống một đoạn ngay khi trang mount.
-    return (
-      <div className="space-y-4">
-        <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
-          <div aria-busy="true">
-            <LoadingStatus />
-            <Block className="h-14 w-full" />
-          </div>
-        </section>
-        <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="mb-3 font-semibold">Lịch sử nhập</h2>
-          {/* Khớp skeleton trong `upload-history.tsx`: 2 dòng h-16. */}
-          <div aria-busy="true" className="space-y-2">
-            <Block className="h-16 w-full" />
-            <Block className="h-16 w-full" />
-          </div>
-        </section>
-      </div>
-    );
-  }
-
-  return <GenericContentSkeleton />;
-}
-
-/** Khối tròn thay tên người dùng lúc session chưa xác nhận xong. */
-export function UsernameSkeleton() {
-  return (
-    <span aria-busy="true" className="inline-flex items-center">
-      <LoadingStatus label="Đang kiểm tra đăng nhập" />
-      {/* Viết tay bằng <span> chứ không dùng <Block> (render <div>): chỗ này nằm
-          giữa hàng chữ inline của header, <div> lồng trong <span> là HTML không
-          hợp lệ và trình duyệt sẽ tự tách thẻ ra khi parse. */}
-      <span aria-hidden className="inline-block h-4 w-16 animate-pulse rounded-md bg-zinc-200 dark:bg-zinc-800" />
-    </span>
   );
 }
 

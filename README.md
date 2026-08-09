@@ -25,70 +25,50 @@ pnpm dev
 
 Mở [http://localhost:3000](http://localhost:3000) để xem kết quả.
 
-## Đăng nhập
+## Đăng nhập (SSO)
 
-Mỗi tài khoản chỉ thấy giao dịch của chính mình — mọi route `/api` đòi session,
-và mọi câu lệnh SQL đều lọc theo `user_id`.
+Toàn bộ trang và API nằm sau cookie SSO `huyab_sso` do
+[auth.huyab.click](https://auth.huyab.click) phát hành — cùng một lần đăng nhập
+dùng chung với các app khác trên domain. App này chỉ giữ khoá công khai lấy từ
+JWKS của issuer nên không thể tự phát token cho mình hay cho app khác.
+
+Mỗi tài khoản chỉ thấy giao dịch của chính mình: mọi route `/api` đòi cookie
+hợp lệ và mọi câu lệnh SQL đều lọc theo `user_id`.
+
+Các đường liên quan:
+
+- `/login` — một nút "Tiếp tục với Google", trỏ sang `/api/auth/sso`
+- `/api/auth/sso` — redirect tới `<issuer>/login?redirect_uri=<origin>/`
+- `/api/auth/logout` — redirect tới `<issuer>/logout`; cookie thuộc cả domain
+  nên chỉ SSO service xoá được, app không có session riêng để dọn
+- `SSO_ISSUER` (vars trong `wrangler.jsonc`, hoặc `.dev.vars` khi chạy local)
+  đổi được issuer; mặc định `https://auth.huyab.click`
+
+Hai tầng kiểm tra, cố ý không giống nhau:
+
+- `src/proxy.ts` chỉ xem cookie **có tồn tại** để chuyển hướng sớm (tài liệu
+  Next.js khuyên không xử lý session ở proxy, và fetch JWKS ở đó thì mỗi request
+  tốn thêm một round-trip).
+- Chữ ký được verify ở `getSessionClaims()` (layout `(app)`, trang login) và
+  `requireUser()` (mọi route handler). Ranh giới bảo mật nằm ở đây.
+
+Claims SSO được map sang một dòng trong bảng `user` theo **email**
+(`resolveUserId` trong `src/infrastructure/auth/session.ts`), vì giao dịch khoá
+theo `user_id` nên vẫn cần một id ổn định của riêng app.
 
 Chuẩn bị lần đầu:
 
 ```bash
-cp .dev.vars.example .dev.vars
-# điền BETTER_AUTH_SECRET, sinh bằng: openssl rand -base64 32
 pnpm exec wrangler d1 migrations apply db --local
 ```
 
-Vào `/login` để đăng ký tài khoản (username + mật khẩu ≥ 8 ký tự).
-
-Các script CLI (`pnpm upload/stats/tx`) cũng phải đăng nhập, lấy thông tin từ env:
+Các script CLI (`pnpm upload/stats/tx`) không tự đăng nhập được (SSO là luồng
+OAuth trên trình duyệt) nên phải mang sẵn cookie — copy giá trị cookie
+`huyab_sso` từ devtools:
 
 ```bash
-CARDSTAT_USER=... CARDSTAT_PASS=... pnpm upload file.pdf
+HUYAB_SSO_COOKIE=... pnpm upload file.pdf
 ```
-
-Khi deploy: `pnpm exec wrangler secret put BETTER_AUTH_SECRET` và chạy migration
-với `--remote`.
-
-### Đăng nhập Google (tuỳ chọn)
-
-Nút "Tiếp tục với Google" chỉ hiện khi có đủ **CẢ HAI** biến `GOOGLE_CLIENT_ID`
-và `GOOGLE_CLIENT_SECRET` (xem `src/app/login/page.tsx`) — thiếu một trong hai
-thì nút bị ẩn hoàn toàn, tránh việc bấm vào chỉ nhận lỗi từ Google.
-
-Tạo OAuth client trên [Google Cloud Console](https://console.cloud.google.com/):
-
-1. Chọn hoặc tạo một project.
-2. **APIs & Services → OAuth consent screen**: cấu hình tên app, email hỗ trợ
-   (User type "External" nếu không dùng Google Workspace nội bộ).
-3. **APIs & Services → Credentials → Create Credentials → OAuth client ID**,
-   Application type chọn **Web application**.
-4. **Authorized JavaScript origins** (chỉ origin, không có path):
-   - `http://localhost:3000` (dev)
-   - `https://<domain-production-của-bạn>` (khi đã deploy)
-5. **Authorized redirect URIs** (đúng path callback của better-auth,
-   `{basePath}/callback/google` với `basePath = "/api/auth"`):
-   - `http://localhost:3000/api/auth/callback/google` (dev)
-   - `https://<domain-production-của-bạn>/api/auth/callback/google` (production)
-6. Lưu lại — Google trả về **Client ID** và **Client secret**.
-
-Điền giá trị vừa tạo:
-
-- **Local**: mở `.dev.vars` (copy từ `.dev.vars.example`), điền vào
-  `GOOGLE_CLIENT_ID` và `GOOGLE_CLIENT_SECRET`. File này không commit lên git.
-- **Deploy**: KHÔNG đặt secret production trong `.dev.vars`, dùng wrangler:
-
-  ```bash
-  pnpm exec wrangler secret put GOOGLE_CLIENT_ID
-  pnpm exec wrangler secret put GOOGLE_CLIENT_SECRET
-  ```
-
-Lưu ý về tài khoản: user đăng nhập bằng Google được tạo với `email` thật lấy
-từ Google (khác với `<username>@cardstat.local` của tài khoản username/mật
-khẩu), và cột `username` của user đó là **NULL** — không đăng nhập được bằng
-username/mật khẩu hay CLI (`CARDSTAT_USER`/`CARDSTAT_PASS`) cho tới khi có
-tính năng liên kết tài khoản. Nếu một người đã có tài khoản username/mật khẩu
-rồi bấm "Tiếp tục với Google" bằng đúng email Gmail đó, hệ thống **không tự
-gộp** hai tài khoản — sẽ có 2 user riêng biệt trong DB.
 
 ## CI/CD
 

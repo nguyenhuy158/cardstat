@@ -18,14 +18,10 @@ import { createHash } from "node:crypto";
 const baseUrl = (process.argv[2] || process.env.SMOKE_BASE_URL || "https://cardstats.huyab.click")
   .replace(/\/+$/, "");
 
-// Marker tiếng Việt lấy nguyên văn từ src/app/login/login-form.tsx — nếu ai
-// đổi câu này ở đó thì cũng phải sửa ở đây, cố ý làm vậy để test không "giả
-// pass" bằng một chuỗi chung chung như "Đăng nhập".
-const LOGIN_MARKER = "Đăng nhập bằng username và mật khẩu";
-// Marker của lớp guard đăng nhập ở src/app/(app)/layout.tsx: trang chủ luôn
-// render lớp này trước khi biết có session hay không, nên request không kèm
-// cookie sẽ luôn thấy đúng chuỗi này chứ không thấy số liệu chi tiêu thật.
-const AUTH_GATE_MARKER = "Đang kiểm tra đăng nhập";
+// Marker tiếng Việt lấy nguyên văn từ src/app/login/page.tsx — nếu ai đổi câu
+// này ở đó thì cũng phải sửa ở đây, cố ý làm vậy để test không "giả pass" bằng
+// một chuỗi chung chung như "Đăng nhập".
+const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.click";
 
 // Query param đổi mỗi lần gọi để tránh bất kỳ tầng cache nào (browser cache,
 // Cloudflare edge cache nếu route nào đó lỡ bị đánh dấu cacheable) trả lại
@@ -92,27 +88,22 @@ record(
     : "",
 );
 
-// --- 3. / (trang chủ) không được lộ dữ liệu khi chưa đăng nhập: hoặc redirect
-// sang /login, hoặc trả về lớp "guard" đang kiểm tra đăng nhập (chưa render
-// số liệu vì layout chặn ở client trước khi có session). ---
+// --- 3. / (trang chủ) không có cookie SSO phải redirect sang /login. Từ khi
+// dùng SSO thì `src/proxy.ts` chặn ngay ở tầng proxy nên đây là redirect thật,
+// không còn trường hợp trả 200 kèm lớp guard render ở client như trước. ---
 const root = await get("/");
-let rootPass = false;
-let rootActual = `status ${root.status}`;
-if (root.status >= 300 && root.status < 400) {
-  const location = root.headers.get("location") || "";
-  rootPass = location.includes("/login");
-  rootActual = `redirect ${root.status} tới "${location}"`;
-} else if (root.status === 200) {
-  rootPass = root.text.includes(AUTH_GATE_MARKER);
-  rootActual = rootPass
-    ? `200, có chứa "${AUTH_GATE_MARKER}" (đúng lớp guard, chưa render số liệu)`
-    : `200, KHÔNG thấy "${AUTH_GATE_MARKER}" trong HTML`;
-}
+const rootLocation = root.headers.get("location") || "";
+const rootPass = root.status >= 300 && root.status < 400 && rootLocation.includes("/login");
 record(
-  'GET / không lộ dữ liệu khi chưa đăng nhập (redirect "/login" hoặc render lớp guard)',
+  'GET / (không auth) redirect sang "/login"',
   rootPass,
-  `redirect sang /login, hoặc 200 kèm "${AUTH_GATE_MARKER}"`,
-  rootActual,
+  'redirect 3xx tới "/login"',
+  root.status >= 300 && root.status < 400
+    ? `redirect ${root.status} tới "${rootLocation}"`
+    : `status ${root.status}`,
+  root.status === 200
+    ? "NGHIÊM TRỌNG: trang chủ trả HTML khi không có cookie — kiểm tra src/proxy.ts."
+    : "",
 );
 
 for (const r of results) printResult(r);

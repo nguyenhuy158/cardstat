@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import type { TransactionRepository } from "@/domain/ports/transaction-repository";
 import { getTransactionRepository } from "@/infrastructure/persistence/get-repository";
 
-import { createAuth, type AuthEnv } from "./auth";
+import { getClaimsFromRequest, resolveUserId } from "./session";
 
 export type AuthedContext = {
   userId: string;
@@ -12,22 +12,24 @@ export type AuthedContext = {
 };
 
 /**
- * Composition root cho request đã đăng nhập: xác thực session rồi cắm adapter D1
- * đã khoá theo user vào port TransactionRepository. Mọi route ghi/đọc giao dịch
- * phải đi qua đây — kiểm tra ở client chỉ là UX, ranh giới bảo mật nằm ở API.
+ * Composition root cho request đã đăng nhập: xác thực cookie SSO rồi cắm adapter
+ * D1 đã khoá theo user vào port TransactionRepository. Mọi route ghi/đọc giao
+ * dịch phải đi qua đây — `src/proxy.ts` chỉ kiểm tra cookie có tồn tại, ranh
+ * giới bảo mật nằm ở đây vì chỉ ở đây chữ ký mới được verify.
  *
  * Trả về `Response` 401 khi chưa đăng nhập, ngược lại trả context.
  */
 export async function requireUser(req: Request): Promise<AuthedContext | Response> {
-  const { env } = await getCloudflareContext({ async: true });
-  const auth = createAuth(env as AuthEnv, req.url);
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) {
+  const claims = await getClaimsFromRequest(req);
+  if (!claims) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
+
+  const { env } = await getCloudflareContext({ async: true });
+  const userId = await resolveUserId(env.DB, claims);
   return {
-    userId: session.user.id,
-    repo: await getTransactionRepository(session.user.id),
+    userId,
+    repo: await getTransactionRepository(userId),
   };
 }
 
