@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { authClient } from "@/infrastructure/auth/auth-client";
 
 import { BottomNav } from "../bottom-nav";
+import { AppRouteSkeleton, UsernameSkeleton } from "../skeleton";
 import { DesktopNav } from "./desktop-nav";
 
 /**
@@ -17,6 +18,7 @@ import { DesktopNav } from "./desktop-nav";
  */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const signedIn = Boolean(session?.user);
 
@@ -30,10 +32,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     router.replace("/login");
   }
 
-  if (sessionPending || !signedIn) {
+  // Đã biết chắc chưa đăng nhập (không còn "đang chờ") thì effect trên đang
+  // điều hướng sang /login ngay — đây là màn hình chuyển tiếp cực ngắn, không
+  // phải trạng thái chờ dữ liệu, nên giữ dòng chữ đơn giản, không cần khung
+  // trang thật (tránh nhấp nháy hiện đủ header/nav của trang đã đăng nhập).
+  if (!sessionPending && !signedIn) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 text-sm text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
-        Đang kiểm tra đăng nhập...
+        Đang chuyển sang trang đăng nhập...
       </div>
     );
   }
@@ -41,7 +47,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
       {/* Thanh header sticky gọn cho mobile: tiêu đề bên trái, người dùng + đăng xuất bên phải.
-          Trên sm+ có thêm nav ngang vì bottom-nav bị ẩn ở desktop. */}
+          Trên sm+ có thêm nav ngang vì bottom-nav bị ẩn ở desktop.
+          Tiêu đề, nav và nút đăng xuất không phụ thuộc dữ liệu session nên vẫn
+          hiện thật kể cả lúc `sessionPending` — chỉ tên người dùng cần khối
+          skeleton vì nó đọc trực tiếp từ session. */}
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
         <div className="mx-auto flex items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:max-w-5xl">
           <div className="flex min-w-0 items-center gap-6">
@@ -51,9 +60,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <DesktopNav />
           </div>
           <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
-            <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem] dark:text-zinc-400">
-              {session?.user.displayUsername || session?.user.name}
-            </span>
+            {sessionPending ? (
+              <UsernameSkeleton />
+            ) : (
+              <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem] dark:text-zinc-400">
+                {session?.user.displayUsername || session?.user.name}
+              </span>
+            )}
             <button
               onClick={handleSignOut}
               className="flex h-11 items-center rounded-lg border border-zinc-200 px-3 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
@@ -65,7 +78,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* pb lớn hơn trên mobile để bottom-nav không che nội dung/hàng cuối bảng */}
-      <div className="mx-auto px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8 lg:max-w-5xl">{children}</div>
+      <div className="mx-auto px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8 lg:max-w-5xl">
+        {sessionPending ? <AppRouteSkeleton pathname={pathname} /> : children}
+      </div>
 
       <BottomNav />
     </div>

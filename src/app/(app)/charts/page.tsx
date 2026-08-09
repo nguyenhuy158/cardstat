@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { CategoryChart, MonthChart } from "@/app/charts";
+import { ChartsSkeleton } from "@/app/skeleton";
 
 type Stats = {
   byCategory: { category: string; total: number }[];
@@ -21,7 +22,9 @@ export default function ChartsPage() {
       .then(setStats);
   }, []);
 
-  if (stats && stats.byCategory.length === 0) {
+  if (stats === null) return <ChartsSkeleton />;
+
+  if (stats.byCategory.length === 0) {
     return <p className="text-sm text-zinc-500 dark:text-zinc-400">Chưa có dữ liệu để vẽ biểu đồ. Hãy nhập sao kê trước.</p>;
   }
 
@@ -29,12 +32,12 @@ export default function ChartsPage() {
     <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="mb-4 font-semibold">Chi tiêu theo danh mục</h2>
-        {stats && <CategoryChart data={stats.byCategory} />}
+        <CategoryChart data={stats.byCategory} />
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="mb-4 font-semibold">Chi tiêu và thu theo tháng</h2>
-        {stats && <MonthChart data={stats.byMonth} />}
+        <MonthChart data={stats.byMonth} />
       </div>
     </section>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { TransactionsSkeleton } from "@/app/skeleton";
 import { TransactionsTable, type Transaction } from "@/app/transactions-table";
 
 type StatsForFilters = {
@@ -20,6 +21,11 @@ Object.freeze(EMPTY_CATEGORIES);
 export default function TransactionsPage() {
   const [statsForFilters, setStatsForFilters] = useState<StatsForFilters | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  // `transactions` khởi tạo `[]` nên không tự phân biệt được "đang tải" với
+  // "thật sự trống" — cần cờ riêng. Chỉ tắt skeleton ở lần tải đầu; đổi bộ lọc
+  // sau đó giữ nguyên bảng cũ trong lúc chờ dữ liệu mới, không nhấp nháy lại
+  // skeleton mỗi lần đổi tháng/danh mục.
+  const [loading, setLoading] = useState(true);
   const [monthFilter, setMonthFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   // Tăng lên sau khi xoá một giao dịch để hai effect fetch dưới đây chạy lại
@@ -40,7 +46,10 @@ export default function TransactionsPage() {
     if (categoryFilter) params.set("category", categoryFilter);
     fetch(`/api/transactions?${params}`)
       .then((res) => res.json<Transaction[]>())
-      .then(setTransactions);
+      .then((data) => {
+        setTransactions(data);
+        setLoading(false);
+      });
   }, [monthFilter, categoryFilter, refreshKey]);
 
   async function handleDelete(id: number) {
@@ -52,16 +61,20 @@ export default function TransactionsPage() {
     <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <h2 className="mb-4 font-semibold">Danh sách giao dịch</h2>
 
-      <TransactionsTable
-        data={transactions}
-        onDelete={handleDelete}
-        months={statsForFilters?.months ?? EMPTY_MONTHS}
-        categories={statsForFilters?.categories ?? EMPTY_CATEGORIES}
-        monthFilter={monthFilter}
-        onMonthFilterChange={setMonthFilter}
-        categoryFilter={categoryFilter}
-        onCategoryFilterChange={setCategoryFilter}
-      />
+      {loading ? (
+        <TransactionsSkeleton />
+      ) : (
+        <TransactionsTable
+          data={transactions}
+          onDelete={handleDelete}
+          months={statsForFilters?.months ?? EMPTY_MONTHS}
+          categories={statsForFilters?.categories ?? EMPTY_CATEGORIES}
+          monthFilter={monthFilter}
+          onMonthFilterChange={setMonthFilter}
+          categoryFilter={categoryFilter}
+          onCategoryFilterChange={setCategoryFilter}
+        />
+      )}
     </section>
   );
 }

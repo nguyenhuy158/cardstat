@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { OverviewSkeleton } from "@/app/skeleton";
+
 type Stats = {
   totals: { totalSpend: number; totalIncome: number; count: number };
 };
@@ -33,7 +35,7 @@ export default function OverviewPage() {
         Import sao kê PDF, tự động phân loại và xem thống kê chi tiêu
       </p>
 
-      {stats && (
+      {stats ? (
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           <div className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
             <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Tổng chi tiêu</div>
@@ -52,6 +54,8 @@ export default function OverviewPage() {
             <div className="mt-1 text-lg font-bold tabular-nums sm:text-2xl">{stats.totals.count || 0}</div>
           </div>
         </section>
+      ) : (
+        <OverviewSkeleton />
       )}
     </>
   );

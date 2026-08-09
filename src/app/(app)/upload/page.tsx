@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 
+import { LoadingStatus, SkeletonBlock } from "@/app/skeleton";
+
 /**
  * Trang "Nhập" (`/upload`) — chỉ có khu vực tải PDF lên. Không còn hiển thị
  * tổng hợp/biểu đồ/bảng ở đây nữa (đã tách sang route riêng), nên sau khi
@@ -56,7 +58,10 @@ export default function UploadPage() {
   }
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <section
+      aria-busy={uploading}
+      className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
+    >
       <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
       <label
         className={`flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 text-sm font-medium text-zinc-600 transition hover:border-zinc-400 hover:bg-zinc-50 focus-within:border-zinc-400 focus-within:ring-2 focus-within:ring-zinc-900/20 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-800 dark:focus-within:ring-zinc-100/20 ${uploading ? "pointer-events-none opacity-60" : ""}`}
@@ -71,6 +76,15 @@ export default function UploadPage() {
           className="sr-only"
         />
       </label>
+      {/* Giữ trước chỗ cho dòng kết quả trong lúc đang xử lý — trước đây chỗ này
+          trống hẳn rồi mới bật ra sau khi xong, làm đoạn ghi chú dưới nhảy vị
+          trí; skeleton khớp chiều cao một dòng text-sm giữ chỗ ổn định. */}
+      {uploading && !message && (
+        <div className="mt-3">
+          <LoadingStatus />
+          <SkeletonBlock className="h-5 w-3/4" />
+        </div>
+      )}
       {message && (
         <p role="status" className="mt-3 text-sm">
           {message}
