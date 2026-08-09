@@ -1,6 +1,7 @@
 import type { TransactionRepository } from "@/domain/ports/transaction-repository";
 import type {
   CategoryTotal,
+  ImportResult,
   MonthTotal,
   NewTransaction,
   Stats,
@@ -48,15 +49,45 @@ export class D1TransactionRepository implements TransactionRepository {
     return info.meta.last_row_id;
   }
 
-  async createMany(inputs: NewTransaction[]): Promise<number> {
+  async createMany(inputs: NewTransaction[]): Promise<ImportResult> {
+    if (inputs.length === 0) return { inserted: 0, skipped: 0 };
+
+    // dup_index = số thứ tự lần xuất hiện của bộ (date, description, amount)
+    // TRONG BATCH này, đếm theo thứ tự các dòng trong file, không phụ thuộc
+    // dữ liệu đã có sẵn trong DB. Nhờ vậy nhập lại đúng một sao kê sẽ luôn tái
+    // tạo đúng dãy dup_index cũ (1, 2, 3, ...) nên va đúng vào UNIQUE index và
+    // bị INSERT OR IGNORE bỏ qua toàn bộ; còn hai giao dịch trùng thật trong
+    // cùng sao kê (ví dụ 2 ly cà phê cùng quán, cùng giá, cùng ngày) được gán
+    // dup_index khác nhau (1 và 2) nên cả hai đều được giữ lại.
+    const counters = new Map<string, number>();
     const insert = this.db.prepare(
-      `INSERT INTO cardstat_transactions (date, description, amount, category, source_file, user_id) VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT OR IGNORE INTO cardstat_transactions
+         (date, description, amount, category, source_file, user_id, dup_index)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     );
-    const batch = inputs.map((r) =>
-      insert.bind(r.date, r.description, r.amount, r.category, r.source_file ?? null, this.userId)
-    );
-    await this.db.batch(batch);
-    return inputs.length;
+    const batch = inputs.map((r) => {
+      const key = [r.date, r.description, r.amount].join("|");
+      const dupIndex = (counters.get(key) ?? 0) + 1;
+      counters.set(key, dupIndex);
+      return insert.bind(
+        r.date,
+        r.description,
+        r.amount,
+        r.category,
+        r.source_file ?? null,
+        this.userId,
+        dupIndex
+      );
+    });
+
+    // meta.changes trên mỗi kết quả batch phản ánh đúng số dòng thực sự được
+    // ghi (0 nếu bị INSERT OR IGNORE bỏ qua do trùng UNIQUE index) — đã kiểm
+    // chứng bằng test đếm số dòng trước/sau khi upload trùng lặp thực tế. Nếu
+    // D1 thay đổi hành vi này, fallback là đếm COUNT(*) trước/sau thay vì
+    // cộng meta.changes.
+    const results = await this.db.batch(batch);
+    const inserted = results.reduce((sum, r) => sum + (r.meta.changes ?? 0), 0);
+    return { inserted, skipped: inputs.length - inserted };
   }
 
   async update(id: number, update: TransactionUpdate): Promise<void> {

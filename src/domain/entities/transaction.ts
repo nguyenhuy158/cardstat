@@ -5,6 +5,7 @@ export type Transaction = {
   amount: number;
   category: string;
   source_file: string | null;
+  dup_index: number;
   created_at: string;
 };
 
@@ -14,6 +15,12 @@ export type NewTransaction = {
   amount: number;
   category: string;
   source_file?: string | null;
+};
+
+/** Kết quả nhập một sao kê: bao nhiêu dòng mới, bao nhiêu bị bỏ vì đã tồn tại. */
+export type ImportResult = {
+  inserted: number;
+  skipped: number;
 };
 
 export type TransactionUpdate = Partial<Pick<Transaction, "date" | "description" | "amount" | "category">>;
