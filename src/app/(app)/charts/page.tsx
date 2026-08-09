@@ -4,16 +4,18 @@ import { useEffect, useState } from "react";
 
 import { CategoryChart, MonthChart } from "@/app/charts";
 import { FetchError } from "@/app/fetch-error";
-import { ChartsSkeleton } from "@/app/skeleton";
+import { InsightsPanel, type Insights } from "@/app/insights";
+import { ChartsSkeleton, InsightsSkeleton } from "@/app/skeleton";
 
 type Stats = {
   byCategory: { category: string; total: number }[];
   byMonth: { month: string; spend: number; income: number }[];
 };
 
-/** Trang "Biểu đồ" (`/charts`) — chỉ hai biểu đồ, tự fetch `/api/stats` riêng. */
+/** Trang "Biểu đồ" (`/charts`) — hai biểu đồ và khu vực Dự đoán & Insight, mỗi phần tự fetch API riêng. */
 export default function ChartsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [insights, setInsights] = useState<Insights | null>(null);
   // Cờ lỗi riêng, không tái dùng `stats = { byCategory: [], byMonth: [] }`:
   // dữ liệu rỗng giả sẽ báo "chưa có dữ liệu" trong khi thật ra là fetch hỏng.
   const [failed, setFailed] = useState(false);
@@ -26,6 +28,13 @@ export default function ChartsPage() {
       .then((res) => res.json<Stats>())
       .then(setStats)
       .catch(() => setFailed(true));
+
+    // Insight là phần bổ trợ: fetch hỏng chỉ ẩn khu vực này, không kéo cả
+    // trang vào trạng thái lỗi (hai biểu đồ chính vẫn dùng được).
+    fetch("/api/insights")
+      .then((res) => res.json<Insights>())
+      .then(setInsights)
+      .catch(() => {});
   }, [reloadKey]);
 
   function handleRetry() {
@@ -52,6 +61,8 @@ export default function ChartsPage() {
         <h2 className="mb-4 font-semibold">Chi tiêu và thu theo tháng</h2>
         <MonthChart data={stats.byMonth} />
       </div>
+
+      <div className="lg:col-span-2">{insights === null ? <InsightsSkeleton /> : <InsightsPanel insights={insights} />}</div>
     </section>
   );
 }

@@ -39,3 +39,30 @@ export type Stats = {
   months: { month: string }[];
   categories: { category: string }[];
 };
+
+/** Một kỳ trả góp đã ghi nhận, gộp từ các dòng "Trả góp" có cùng chuỗi mô tả gốc. */
+export type InstallmentPlan = {
+  /** Mô tả gốc đã bỏ số kỳ (VD "TRA GOP IPHONE 3/6" -> "TRA GOP IPHONE"), dùng làm key gộp nhóm. */
+  key: string;
+  description: string;
+  monthlyAmount: number;
+  paidInstallments: number;
+  /** Tổng số kỳ nếu mô tả có ghi rõ dạng "x/y"; null nếu không suy ra được. */
+  totalInstallments: number | null;
+  firstDate: string;
+  lastDate: string;
+  paidTotal: number;
+};
+
+export type CategoryAlert = {
+  category: string;
+  currentMonthTotal: number;
+  averagePastMonths: number;
+  changeRatio: number;
+};
+
+export type Insights = {
+  predictedNextMonthSpend: number;
+  categoryAlerts: CategoryAlert[];
+  installmentPlans: InstallmentPlan[];
+};

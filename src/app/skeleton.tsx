@@ -77,6 +77,27 @@ export function ChartsSkeleton() {
   );
 }
 
+/** Khu vực "Dự đoán & Insight" lúc đang tải — khớp lưới 3 thẻ của `InsightsPanel` thật. */
+export function InsightsSkeleton() {
+  return (
+    <section aria-busy="true" className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <LoadingStatus />
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <Block className="h-4 w-40" />
+        <Block className="mt-2 h-7 w-32" />
+      </div>
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <Block className="h-4 w-32" />
+        <Block className="mt-3 h-16 w-full" />
+      </div>
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <Block className="h-4 w-36" />
+        <Block className="mt-3 h-16 w-full" />
+      </div>
+    </section>
+  );
+}
+
 /**
  * Nội dung bảng "Giao dịch" lúc đang tải — thay cho `<TransactionsTable>`
  * (component không thuộc sở hữu, không sửa trực tiếp được) bằng một khối
