@@ -88,8 +88,8 @@ record(
     : "",
 );
 
-// --- 3. / (trang chủ) không có cookie SSO phải redirect sang /login. Từ khi
-// dùng SSO thì `src/proxy.ts` chặn ngay ở tầng proxy nên đây là redirect thật,
+// --- 3. / (trang chủ) không có cookie SSO phải redirect sang /login. Guard nằm
+// trong layout `(app)` chạy trên server, nên đây là redirect thật của Next chứ
 // không còn trường hợp trả 200 kèm lớp guard render ở client như trước. ---
 const root = await get("/");
 const rootLocation = root.headers.get("location") || "";
@@ -102,7 +102,7 @@ record(
     ? `redirect ${root.status} tới "${rootLocation}"`
     : `status ${root.status}`,
   root.status === 200
-    ? "NGHIÊM TRỌNG: trang chủ trả HTML khi không có cookie — kiểm tra src/proxy.ts."
+    ? "NGHIÊM TRỌNG: trang chủ trả HTML khi không có cookie — kiểm tra guard trong src/app/(app)/layout.tsx."
     : "",
 );
 

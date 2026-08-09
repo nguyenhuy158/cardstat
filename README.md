@@ -44,13 +44,15 @@ Các đường liên quan:
 - `SSO_ISSUER` (vars trong `wrangler.jsonc`, hoặc `.dev.vars` khi chạy local)
   đổi được issuer; mặc định `https://auth.huyab.click`
 
-Hai tầng kiểm tra, cố ý không giống nhau:
+Hai tầng kiểm tra:
 
-- `src/proxy.ts` chỉ xem cookie **có tồn tại** để chuyển hướng sớm (tài liệu
-  Next.js khuyên không xử lý session ở proxy, và fetch JWKS ở đó thì mỗi request
-  tốn thêm một round-trip).
-- Chữ ký được verify ở `getSessionClaims()` (layout `(app)`, trang login) và
-  `requireUser()` (mọi route handler). Ranh giới bảo mật nằm ở đây.
+- Layout `(app)` (server component) verify cookie rồi `redirect("/login")` —
+  đây là UX, để trình duyệt chưa đăng nhập không thấy trang trống.
+- `requireUser()` verify lại trong từng route handler. Ranh giới bảo mật nằm ở
+  đây, vì kiểm tra ở tầng render không chặn được request gọi API trực tiếp.
+
+Không dùng `proxy.ts` (middleware): Next 16 chạy proxy trên Node runtime, còn
+`@opennextjs/cloudflare` chỉ nhận edge middleware nên build sẽ fail.
 
 Claims SSO được map sang một dòng trong bảng `user` theo **email**
 (`resolveUserId` trong `src/infrastructure/auth/session.ts`), vì giao dịch khoá

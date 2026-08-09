@@ -14,8 +14,8 @@ export type AuthedContext = {
 /**
  * Composition root cho request đã đăng nhập: xác thực cookie SSO rồi cắm adapter
  * D1 đã khoá theo user vào port TransactionRepository. Mọi route ghi/đọc giao
- * dịch phải đi qua đây — `src/proxy.ts` chỉ kiểm tra cookie có tồn tại, ranh
- * giới bảo mật nằm ở đây vì chỉ ở đây chữ ký mới được verify.
+ * dịch phải đi qua đây: kiểm tra ở layout chỉ là UX (đẩy trình duyệt sang
+ * /login), ranh giới bảo mật nằm ở API.
  *
  * Trả về `Response` 401 khi chưa đăng nhập, ngược lại trả context.
  */
