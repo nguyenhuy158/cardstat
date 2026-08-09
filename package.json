@@ -10,7 +10,9 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "upload": "node scripts/upload.mjs"
+    "upload": "node scripts/upload.mjs",
+    "stats": "node scripts/stats.mjs",
+    "tx": "node scripts/list.mjs"
   },
   "dependencies": {
     "date-fns": "^4.4.0",

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
+import { resolveBaseUrl } from "./cli-url.mjs";
 
 const [, , filePath, ...rest] = process.argv;
 
@@ -9,8 +10,7 @@ if (!filePath) {
   process.exit(1);
 }
 
-const urlFlagIndex = rest.indexOf("--url");
-const baseUrl = urlFlagIndex !== -1 ? rest[urlFlagIndex + 1] : process.env.UPLOAD_URL || "http://localhost:3000";
+const baseUrl = resolveBaseUrl(rest);
 
 let buffer;
 try {
