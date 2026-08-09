@@ -48,3 +48,11 @@ data.db-wal
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cloudflare secrets
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# bank statements dropped in for local testing (personal financial data)
+*.pdf
