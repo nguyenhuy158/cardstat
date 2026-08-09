@@ -3,16 +3,19 @@
 import { useRef, useState } from "react";
 
 import { LoadingStatus, SkeletonBlock } from "@/app/skeleton";
+import { UploadHistory } from "@/app/upload-history";
 
 /**
- * Trang "Nhập" (`/upload`) — chỉ có khu vực tải PDF lên. Không còn hiển thị
- * tổng hợp/biểu đồ/bảng ở đây nữa (đã tách sang route riêng), nên sau khi
+ * Trang "Nhập" (`/upload`) — khu vực tải PDF lên và lịch sử các lần nhập. Không
+ * hiển thị tổng hợp/biểu đồ/bảng ở đây (đã tách sang route riêng), nên sau khi
  * nhập thành công chỉ báo số giao dịch và gợi ý người dùng qua "Tổng quan"
  * hoặc "Giao dịch" để xem chi tiết.
  */
 export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+  // Tăng sau mỗi lần nhập xong để lịch sử bên dưới nạp lại danh sách mới.
+  const [historyKey, setHistoryKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -52,12 +55,14 @@ export default function UploadPage() {
     } catch {
       setMessage("Lỗi khi tải file lên");
     } finally {
+      // Nạp lại cả khi hỏng: upload có thể ghi được một phần rồi mới đứt.
+      setHistoryKey((k) => k + 1);
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
-  return (
+  const uploadCard = (
     <section
       aria-busy={uploading}
       className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
@@ -94,5 +99,20 @@ export default function UploadPage() {
         Hỗ trợ file PDF sao kê ngân hàng/thẻ tín dụng. Hệ thống tự dò từng dòng có ngày và số tiền để nhận diện giao dịch.
       </p>
     </section>
+  );
+
+  return (
+    <div className="space-y-4">
+      {uploadCard}
+      <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <h2 className="mb-3 font-semibold">Lịch sử nhập</h2>
+        <UploadHistory
+          refreshKey={historyKey}
+          // Xóa một lần nhập là xóa cả cụm giao dịch — thông báo "đã nhập N
+          // giao dịch" của lần trước không còn đúng nữa, dọn đi.
+          onChanged={() => setMessage("")}
+        />
+      </section>
+    </div>
   );
 }

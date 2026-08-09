@@ -221,14 +221,26 @@ export function AppRouteSkeleton({ pathname }: { pathname: string }) {
   }
 
   if (pathname.startsWith("/upload")) {
+    // Hai thẻ, đúng như trang thật: khu chọn file và lịch sử nhập. Thiếu thẻ
+    // dưới thì nội dung nhảy xuống một đoạn ngay khi trang mount.
     return (
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-        <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
-        <div aria-busy="true">
-          <LoadingStatus />
-          <Block className="h-14 w-full" />
-        </div>
-      </section>
+      <div className="space-y-4">
+        <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
+          <div aria-busy="true">
+            <LoadingStatus />
+            <Block className="h-14 w-full" />
+          </div>
+        </section>
+        <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="mb-3 font-semibold">Lịch sử nhập</h2>
+          {/* Khớp skeleton trong `upload-history.tsx`: 2 dòng h-16. */}
+          <div aria-busy="true" className="space-y-2">
+            <Block className="h-16 w-full" />
+            <Block className="h-16 w-full" />
+          </div>
+        </section>
+      </div>
     );
   }
 

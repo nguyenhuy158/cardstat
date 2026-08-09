@@ -6,6 +6,9 @@
 
 - Import sao kê ngân hàng dạng CSV (tự nhận diện cột ngày / mô tả / số tiền hoặc ghi nợ-ghi có, tên cột tiếng Anh hoặc tiếng Việt)
 - Tự động phân loại giao dịch vào các danh mục (Ăn uống, Di chuyển, Mua sắm, Giải trí, Hóa đơn, Du lịch, Sức khỏe, Rút tiền / Phí, Khác)
+- Lịch sử nhập: mỗi lần upload là một dòng có mốc thời gian, xóa một lần nhập
+  là xóa đúng các giao dịch của lần đó (giao dịch trùng giữa hai lần nhập tính
+  cho lần nhập đầu, nên xóa lần cũ sẽ xóa luôn những dòng đó)
 - Dashboard thống kê: tổng chi tiêu/thu nhập, biểu đồ theo danh mục và theo tháng
 - Danh sách giao dịch có lọc theo tháng/danh mục, sửa danh mục ngay trên chip
   (phân loại tự động chỉ dò từ khóa nên sẽ có dòng sai) và xóa từng dòng

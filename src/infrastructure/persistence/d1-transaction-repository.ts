@@ -9,6 +9,7 @@ import type {
   TransactionFilter,
   TransactionUpdate,
 } from "@/domain/entities/transaction";
+import type { DeleteUploadResult, Upload } from "@/domain/entities/upload";
 
 /**
  * Adapter khoá theo một user: `userId` nằm ở constructor chứ không phải tham số
@@ -49,7 +50,7 @@ export class D1TransactionRepository implements TransactionRepository {
     return info.meta.last_row_id;
   }
 
-  async createMany(inputs: NewTransaction[]): Promise<ImportResult> {
+  async createMany(inputs: NewTransaction[], uploadId?: number): Promise<ImportResult> {
     if (inputs.length === 0) return { inserted: 0, skipped: 0 };
 
     // dup_index = số thứ tự lần xuất hiện của bộ (date, description, amount)
@@ -62,8 +63,8 @@ export class D1TransactionRepository implements TransactionRepository {
     const counters = new Map<string, number>();
     const insert = this.db.prepare(
       `INSERT OR IGNORE INTO cardstat_transactions
-         (date, description, amount, category, source_file, user_id, dup_index)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+         (date, description, amount, category, source_file, user_id, dup_index, upload_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     );
     const batch = inputs.map((r) => {
       const key = [r.date, r.description, r.amount].join("|");
@@ -76,7 +77,8 @@ export class D1TransactionRepository implements TransactionRepository {
         r.category,
         r.source_file ?? null,
         this.userId,
-        dupIndex
+        dupIndex,
+        uploadId ?? null
       );
     });
 
@@ -112,6 +114,62 @@ export class D1TransactionRepository implements TransactionRepository {
       .prepare("DELETE FROM cardstat_transactions WHERE id = ? AND user_id = ?")
       .bind(id, this.userId)
       .run();
+  }
+
+  async createUpload(filename: string): Promise<number> {
+    const info = await this.db
+      .prepare(`INSERT INTO cardstat_uploads (user_id, filename) VALUES (?, ?)`)
+      .bind(this.userId, filename)
+      .run();
+    return info.meta.last_row_id;
+  }
+
+  async setUploadSkipped(id: number, skipped: number): Promise<void> {
+    await this.db
+      .prepare(`UPDATE cardstat_uploads SET skipped_count = ? WHERE id = ? AND user_id = ?`)
+      .bind(skipped, id, this.userId)
+      .run();
+  }
+
+  async listUploads(): Promise<Upload[]> {
+    // LEFT JOIN để lần nhập đã bị xóa hết giao dịch vẫn còn trong lịch sử với
+    // số 0, thay vì biến mất khỏi danh sách. Điều kiện `t.user_id` nằm trong ON
+    // chứ không phải WHERE — WHERE sẽ biến LEFT JOIN thành INNER JOIN.
+    const { results } = await this.db
+      .prepare(
+        `SELECT u.id, u.filename, u.uploaded_at, u.skipped_count,
+                COUNT(t.id) AS transaction_count
+         FROM cardstat_uploads u
+         LEFT JOIN cardstat_transactions t
+           ON t.upload_id = u.id AND t.user_id = u.user_id
+         WHERE u.user_id = ?
+         GROUP BY u.id
+         ORDER BY u.uploaded_at DESC, u.id DESC`
+      )
+      .bind(this.userId)
+      .all<Upload>();
+    return results;
+  }
+
+  async deleteUpload(id: number): Promise<DeleteUploadResult> {
+    // Xóa giao dịch trước rồi mới xóa dòng lịch sử: batch của D1 chạy tuần tự
+    // trong một transaction nên không có khoảnh khắc giao dịch mồ côi. Cả hai
+    // câu đều có `user_id = ?` — không kiểm tra quyền rồi mới ghi.
+    const [transactions, upload] = await this.db.batch([
+      this.db
+        .prepare("DELETE FROM cardstat_transactions WHERE upload_id = ? AND user_id = ?")
+        .bind(id, this.userId),
+      this.db
+        .prepare("DELETE FROM cardstat_uploads WHERE id = ? AND user_id = ?")
+        .bind(id, this.userId),
+    ]);
+
+    // Không xóa được dòng lịch sử nào = id không tồn tại hoặc của user khác;
+    // hai trường hợp đó phải cùng ra 404, không tiết lộ id nào đang tồn tại.
+    return {
+      found: (upload.meta.changes ?? 0) > 0,
+      deletedTransactions: transactions.meta.changes ?? 0,
+    };
   }
 
   async getStats(): Promise<Stats> {

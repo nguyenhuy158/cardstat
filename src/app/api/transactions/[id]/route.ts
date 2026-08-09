@@ -6,12 +6,7 @@ import {
   InvalidUpdateError,
   NoFieldsToUpdateError,
 } from "@/application/use-cases/update-transaction";
-
-/** `Number("abc")` ra NaN và bind thẳng xuống D1 thành lỗi 500 khó hiểu. */
-function parseId(id: string): number | null {
-  const parsed = Number(id);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
-}
+import { parseId } from "../../parse-id";
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authed = await requireUser(req);

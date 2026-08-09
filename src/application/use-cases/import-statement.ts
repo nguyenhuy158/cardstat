@@ -12,11 +12,32 @@ export async function importStatement(
   extractPdfText: PdfTextExtractor,
   pdfBuffer: ArrayBuffer,
   sourceFile: string
-): Promise<ImportResult> {
+): Promise<ImportResult & { uploadId: number }> {
   const text = await extractPdfText(pdfBuffer);
   const rows = parseStatementText(text);
   if (rows.length === 0) {
     throw new EmptyStatementError("Không đọc được giao dịch nào từ file. Kiểm tra lại định dạng PDF sao kê.");
   }
-  return repo.createMany(rows.map((r) => ({ ...r, source_file: sourceFile })));
+
+  // Dòng lịch sử phải có trước để lấy id gắn vào từng giao dịch; D1 không có
+  // transaction mở kéo dài qua nhiều lượt gọi nên nếu batch insert hỏng thì tự
+  // dọn dòng vừa tạo, đừng để lại một lần nhập rỗng không ai giải thích được.
+  const uploadId = await repo.createUpload(sourceFile);
+  let result;
+  try {
+    result = await repo.createMany(
+      rows.map((r) => ({ ...r, source_file: sourceFile })),
+      uploadId
+    );
+  } catch (err) {
+    await repo.deleteUpload(uploadId).catch(() => {});
+    throw err;
+  }
+
+  // Ngoài try ở trên và tự nuốt lỗi: `deleteUpload` xóa cả giao dịch của lần
+  // nhập, nên nếu để câu UPDATE này trong tầm rollback thì một lỗi vặt lúc ghi
+  // bộ đếm sẽ xóa mất sao kê vừa nhập thành công. Sai `skipped_count` chỉ là
+  // hiển thị lệch một con số.
+  await repo.setUploadSkipped(uploadId, result.skipped).catch(() => {});
+  return { ...result, uploadId };
 }
