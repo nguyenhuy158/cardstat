@@ -15,6 +15,7 @@ import {
 } from "recharts";
 
 import { CATEGORY_COLORS, SERIES_COLORS } from "./colors";
+import { formatMonth } from "./format";
 
 const AXIS = "currentColor";
 
@@ -52,15 +53,21 @@ function ChartTooltip({
   active,
   payload,
   label,
+  formatLabel,
 }: {
   active?: boolean;
   payload?: TooltipRow[];
   label?: string;
+  // Custom content không tự nhận `labelFormatter` như DefaultTooltipContent
+  // của recharts, nên MonthChart truyền hàm định dạng riêng qua đây.
+  formatLabel?: (label: string) => string;
 }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
-      <div className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">{label}</div>
+      <div className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
+        {label && formatLabel ? formatLabel(label) : label}
+      </div>
       {payload.map((row) => (
         <div key={row.name} className="flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: row.color }} />
@@ -127,9 +134,9 @@ export function MonthChart({ data }: { data: { month: string; spend: number; inc
   const isCompact = useIsCompact();
   if (data.length === 0) return null;
 
-  // Nhiều tháng trên màn hình hẹp thì chữ "2026-02" chồng lên nhau: chỉ hiện số
-  // tháng (bỏ năm) và bớt tick khi danh sách dài. "preserveEnd" là default gốc
-  // của recharts, giữ nguyên cho desktop.
+  // Nhãn "MM/YYYY" (formatMonth) dài hơn "YYYY-MM".slice(5), nên nhiều tháng
+  // trên màn hình hẹp dễ chồng chữ hơn — bớt tick khi danh sách dài. "preserveEnd"
+  // là default gốc của recharts, giữ nguyên cho desktop.
   const tickInterval = isCompact && data.length > 6 ? Math.ceil(data.length / 4) - 1 : "preserveEnd";
 
   return (
@@ -139,7 +146,7 @@ export function MonthChart({ data }: { data: { month: string; spend: number; inc
           <CartesianGrid vertical={false} stroke={AXIS} strokeOpacity={0.15} />
           <XAxis
             dataKey="month"
-            tickFormatter={(v: string) => (isCompact ? v.slice(5) : v)}
+            tickFormatter={formatMonth}
             interval={tickInterval}
             tick={{ fill: AXIS, fontSize: 11 }}
             axisLine={false}
@@ -152,7 +159,7 @@ export function MonthChart({ data }: { data: { month: string; spend: number; inc
             tickLine={false}
             width={48}
           />
-          <Tooltip content={<ChartTooltip />} cursor={{ fill: AXIS, fillOpacity: 0.06 }} />
+          <Tooltip content={<ChartTooltip formatLabel={formatMonth} />} cursor={{ fill: AXIS, fillOpacity: 0.06 }} />
           <Legend
             verticalAlign="top"
             align="right"

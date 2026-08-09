@@ -13,6 +13,7 @@ import {
   useTable,
 } from "@tanstack/react-table";
 import { CATEGORY_COLORS } from "./colors";
+import { formatDate, formatDateTime, formatMonth } from "./format";
 import { Select } from "./select";
 
 export type Transaction = {
@@ -21,6 +22,7 @@ export type Transaction = {
   description: string;
   amount: number;
   category: string;
+  created_at?: string;
 };
 
 /** Callback của trang, đi qua `options.meta` để columns dựng được ở module scope. */
@@ -56,7 +58,20 @@ function formatVnd(n: number) {
 // Columns phải ổn định giữa các lần render, nên chúng nằm ở module scope và lấy
 // `onDelete` từ `table.options.meta` thay vì closure.
 const columns = helper.columns([
-  helper.accessor("date", { header: "Ngày" }),
+  // accessor giữ nguyên "YYYY-MM-DD" thô để sort đúng thứ tự chuỗi (định dạng
+  // DD/MM/YYYY sort sai, ví dụ "10/02" sẽ đứng trước "09/03"); định dạng hiển
+  // thị chỉ nằm ở cell, giống cách cột amount tách số thô khỏi phần hiển thị.
+  helper.accessor("date", {
+    header: "Ngày",
+    cell: (info) => {
+      const t = info.row.original;
+      return (
+        <span title={t.created_at ? `Nhập lúc ${formatDateTime(t.created_at)}` : undefined}>
+          {formatDate(info.getValue())}
+        </span>
+      );
+    },
+  }),
   helper.accessor("description", { header: "Mô tả" }),
   helper.accessor("category", {
     header: "Danh mục",
@@ -164,7 +179,9 @@ export function TransactionsTable({
   const firstRow = filteredCount === 0 ? 0 : pageIndex * pageSize + 1;
   const lastRow = Math.min((pageIndex + 1) * pageSize, filteredCount);
 
-  const monthOptions = months.map((m) => ({ value: m.month, label: m.month }));
+  // Nhãn hiển thị "02/2026" nhưng value gửi lên API vẫn giữ "YYYY-MM" thô —
+  // đổi value theo định dạng hiển thị sẽ làm hỏng filter (?month=).
+  const monthOptions = months.map((m) => ({ value: m.month, label: formatMonth(m.month) }));
   const categoryOptions = categories.map((c) => ({ value: c.category, label: c.category }));
 
   return (
@@ -238,7 +255,7 @@ export function TransactionsTable({
                   {t.description}
                 </p>
                 <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  <span className="whitespace-nowrap">{t.date}</span>
+                  <span className="whitespace-nowrap">{formatDate(t.date)}</span>
                   <span
                     className="rounded-full px-2 py-0.5 text-white"
                     style={{ backgroundColor: CATEGORY_COLORS[t.category] || "#6b7280" }}

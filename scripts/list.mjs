@@ -14,6 +14,15 @@ function vnd(n) {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
 }
 
+// Giống `formatDate` ở src/app/format.ts, chép lại thủ công vì script này chạy
+// bằng node thuần (không qua build Next), không import trực tiếp file .ts được.
+function formatDate(date) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date ?? "");
+  if (!m) return date;
+  const [, y, mo, d] = m;
+  return `${d}/${mo}/${y}`;
+}
+
 const month = flagValue("--month");
 const category = flagValue("--category");
 
@@ -36,6 +45,6 @@ if (body.length === 0) {
 
 for (const t of body) {
   const amount = t.amount >= 0 ? `+${vnd(t.amount)}` : vnd(t.amount);
-  console.log(`${t.id.toString().padStart(5)}  ${t.date}  ${amount.padStart(18)}  ${t.category.padEnd(14)} ${t.description}`);
+  console.log(`${t.id.toString().padStart(5)}  ${formatDate(t.date)}  ${amount.padStart(18)}  ${t.category.padEnd(14)} ${t.description}`);
 }
 console.log(`\n${body.length} giao dịch.`);
