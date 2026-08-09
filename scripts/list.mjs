@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { authFetch } from "./cli-auth.mjs";
 import { resolveBaseUrl } from "./cli-url.mjs";
 
 const args = process.argv.slice(2);
@@ -20,7 +21,7 @@ const url = new URL("/api/transactions", baseUrl);
 if (month) url.searchParams.set("month", month);
 if (category) url.searchParams.set("category", category);
 
-const res = await fetch(url);
+const res = await authFetch(baseUrl, url);
 const body = await res.json();
 
 if (!res.ok) {

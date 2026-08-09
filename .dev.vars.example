@@ -1,0 +1,9 @@
+# Secret ký session của Better Auth. Sinh mới: openssl rand -base64 32
+BETTER_AUTH_SECRET=""
+
+# Bật đăng nhập Google khi có đủ CẢ HAI biến (thiếu một trong hai thì nút Google
+# bị ẩn, không báo lỗi). Lấy từ Google Cloud Console — xem README.md mục
+# "Đăng nhập Google (tuỳ chọn)" để biết các bước tạo OAuth client.
+# Redirect URI: http://localhost:3000/api/auth/callback/google
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""

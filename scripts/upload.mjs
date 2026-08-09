@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
+import { authFetch } from "./cli-auth.mjs";
 import { resolveBaseUrl } from "./cli-url.mjs";
 
 const [, , filePath, ...rest] = process.argv;
@@ -23,7 +24,7 @@ try {
 const form = new FormData();
 form.append("file", new Blob([buffer], { type: "application/pdf" }), basename(filePath));
 
-const res = await fetch(new URL("/api/upload", baseUrl), {
+const res = await authFetch(baseUrl, new URL("/api/upload", baseUrl), {
   method: "POST",
   body: form,
 });

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { authFetch } from "./cli-auth.mjs";
 import { resolveBaseUrl } from "./cli-url.mjs";
 
 const baseUrl = resolveBaseUrl(process.argv.slice(2));
@@ -7,7 +8,7 @@ function vnd(n) {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
 }
 
-const res = await fetch(new URL("/api/stats", baseUrl));
+const res = await authFetch(baseUrl, new URL("/api/stats", baseUrl));
 const body = await res.json();
 
 if (!res.ok) {

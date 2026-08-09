@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTransactionRepository } from "@/infrastructure/persistence/get-repository";
+import { isResponse, requireUser } from "@/infrastructure/auth/require-user";
 import { extractPdfText } from "@/infrastructure/parsing/pdf-text-extractor";
 import { importStatement, EmptyStatementError } from "@/application/use-cases/import-statement";
 
 export async function POST(req: NextRequest) {
+  const authed = await requireUser(req);
+  if (isResponse(authed)) return authed;
+
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
   if (!file) {
@@ -14,9 +17,8 @@ export async function POST(req: NextRequest) {
   }
 
   const buffer = await file.arrayBuffer();
-  const repo = getTransactionRepository();
   try {
-    const inserted = await importStatement(repo, extractPdfText, buffer, file.name);
+    const inserted = await importStatement(authed.repo, extractPdfText, buffer, file.name);
     return NextResponse.json({ inserted });
   } catch (err) {
     if (err instanceof EmptyStatementError) {

@@ -1,22 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTransactionRepository } from "@/infrastructure/persistence/get-repository";
+import { isResponse, requireUser } from "@/infrastructure/auth/require-user";
 import { deleteTransaction } from "@/application/use-cases/delete-transaction";
 import { updateTransaction, NoFieldsToUpdateError } from "@/application/use-cases/update-transaction";
 import type { TransactionUpdate } from "@/domain/entities/transaction";
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authed = await requireUser(req);
+  if (isResponse(authed)) return authed;
+
   const { id } = await params;
-  const repo = getTransactionRepository();
-  await deleteTransaction(repo, Number(id));
+  await deleteTransaction(authed.repo, Number(id));
   return NextResponse.json({ ok: true });
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authed = await requireUser(req);
+  if (isResponse(authed)) return authed;
+
   const { id } = await params;
   const body = (await req.json()) as TransactionUpdate;
-  const repo = getTransactionRepository();
   try {
-    await updateTransaction(repo, Number(id), body);
+    await updateTransaction(authed.repo, Number(id), body);
     return NextResponse.json({ ok: true });
   } catch (err) {
     if (err instanceof NoFieldsToUpdateError) {
