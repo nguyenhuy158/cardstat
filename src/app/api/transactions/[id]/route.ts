@@ -1,15 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isResponse, requireUser } from "@/infrastructure/auth/require-user";
 import { deleteTransaction } from "@/application/use-cases/delete-transaction";
-import { updateTransaction, NoFieldsToUpdateError } from "@/application/use-cases/update-transaction";
-import type { TransactionUpdate } from "@/domain/entities/transaction";
+import {
+  updateTransaction,
+  InvalidUpdateError,
+  NoFieldsToUpdateError,
+} from "@/application/use-cases/update-transaction";
+
+/** `Number("abc")` ra NaN và bind thẳng xuống D1 thành lỗi 500 khó hiểu. */
+function parseId(id: string): number | null {
+  const parsed = Number(id);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authed = await requireUser(req);
   if (isResponse(authed)) return authed;
 
   const { id } = await params;
-  await deleteTransaction(authed.repo, Number(id));
+  const parsedId = parseId(id);
+  if (parsedId === null) return NextResponse.json({ error: "ID không hợp lệ" }, { status: 400 });
+
+  await deleteTransaction(authed.repo, parsedId);
   return NextResponse.json({ ok: true });
 }
 
@@ -18,12 +30,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (isResponse(authed)) return authed;
 
   const { id } = await params;
-  const body = (await req.json()) as TransactionUpdate;
+  const parsedId = parseId(id);
+  if (parsedId === null) return NextResponse.json({ error: "ID không hợp lệ" }, { status: 400 });
+
+  let body: unknown;
   try {
-    await updateTransaction(authed.repo, Number(id), body);
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Body không phải JSON hợp lệ" }, { status: 400 });
+  }
+
+  try {
+    await updateTransaction(authed.repo, parsedId, body);
     return NextResponse.json({ ok: true });
   } catch (err) {
-    if (err instanceof NoFieldsToUpdateError) {
+    if (err instanceof NoFieldsToUpdateError || err instanceof InvalidUpdateError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }
     throw err;

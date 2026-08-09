@@ -12,7 +12,7 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { categoryChipStyle } from "./colors";
+import { CategoryPicker } from "./category-picker";
 import { formatDate, formatDateTime, formatMonth } from "./format";
 import { PAGE_SIZE } from "./pagination";
 import { Select } from "./select";
@@ -27,7 +27,12 @@ export type Transaction = {
 };
 
 /** Callback của trang, đi qua `options.meta` để columns dựng được ở module scope. */
-type TableMeta = { onDelete: (id: number) => void };
+type TableMeta = {
+  onDelete: (id: number) => void;
+  onCategoryChange: (id: number, category: string) => void;
+  /** Id đang chờ PATCH — khóa chip lại để không bắn hai lần đổi chồng nhau. */
+  pendingCategoryIds: ReadonlySet<number>;
+};
 
 /**
  * Chỉ đăng ký feature thực sự dùng — v9 không bật sẵn gì cả, thiếu feature thì
@@ -74,17 +79,17 @@ const columns = helper.columns([
   helper.accessor("description", { header: "Mô tả" }),
   helper.accessor("category", {
     header: "Danh mục",
-    cell: (info) => {
-      const category = info.getValue();
-      return (
-        <span
-          className="rounded-full px-2 py-0.5 text-xs"
-          style={categoryChipStyle(category)}
-        >
-          {category}
-        </span>
-      );
-    },
+    // Chip là nút mở dropdown: phân loại tự động chỉ dò từ khóa nên sai là
+    // chuyện thường, sửa ngay tại chỗ nhìn thấy sai đỡ hơn bắt vào trang khác.
+    cell: (info) => (
+      <CategoryPicker
+        value={info.getValue()}
+        onChange={(category) =>
+          info.table.options.meta?.onCategoryChange(info.row.original.id, category)
+        }
+        disabled={info.table.options.meta?.pendingCategoryIds.has(info.row.original.id)}
+      />
+    ),
   }),
   // accessor giữ số thô để sort đúng thứ tự; định dạng nằm ở cell.
   helper.accessor("amount", {
@@ -154,6 +159,8 @@ const SORTABLE_COLUMNS: { id: string; label: string }[] = [
 export function TransactionsTable({
   data,
   onDelete,
+  onCategoryChange,
+  pendingCategoryIds,
   months,
   categories,
   monthFilter,
@@ -163,6 +170,8 @@ export function TransactionsTable({
 }: {
   data: Transaction[];
   onDelete: (id: number) => void;
+  onCategoryChange: (id: number, category: string) => void;
+  pendingCategoryIds: ReadonlySet<number>;
   months: { month: string }[];
   categories: { category: string }[];
   monthFilter: string;
@@ -174,7 +183,7 @@ export function TransactionsTable({
     features,
     columns,
     data,
-    meta: { onDelete },
+    meta: { onDelete, onCategoryChange, pendingCategoryIds },
     initialState: {
       sorting: [{ id: "date", desc: true }],
       pagination: { pageIndex: 0, pageSize: PAGE_SIZE },
@@ -264,12 +273,16 @@ export function TransactionsTable({
                 </p>
                 <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                   <span className="whitespace-nowrap">{formatDate(t.date)}</span>
-                  <span
-                    className="rounded-full px-2 py-0.5"
-                    style={categoryChipStyle(t.category)}
-                  >
-                    {t.category}
-                  </span>
+                  {/* h-9 (36px): chưa đủ 44px như các nút khác trong repo, và đó
+                      là đánh đổi có chủ ý — chip nằm giữa một dòng chữ nhỏ trong
+                      thẻ, cao 44px sẽ đội cả thẻ lên. Vẫn hơn hẳn ~20px của chip
+                      đặc; nút xóa 44px bên phải vẫn là vùng chạm chính của thẻ. */}
+                  <CategoryPicker
+                    value={t.category}
+                    onChange={(category) => table.options.meta?.onCategoryChange(t.id, category)}
+                    disabled={table.options.meta?.pendingCategoryIds.has(t.id)}
+                    className="h-9 px-2.5"
+                  />
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
