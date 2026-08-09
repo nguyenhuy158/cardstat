@@ -1,0 +1,222 @@
+name: CI
+
+# Pre-merge / pre-deploy checks, a check for unapplied D1 migrations, and a
+# post-deploy production smoke test.
+#
+# IMPORTANT — read before changing anything here:
+#
+# Deploys to production are NOT triggered from this workflow. Cloudflare
+# Workers Builds is already connected directly to this GitHub repo (see
+# commits 54c5da3 "Trigger first Workers Builds run" and 427fc16 "Commit
+# generated Cloudflare env types so CI builds type-check") and deploys on
+# every push to `main` independently of GitHub Actions. There is no
+# `.github/` config for that — Workers Builds is configured on the
+# Cloudflare dashboard, not in this repo. Adding a second `deploy` step here
+# would race the existing one and could double-deploy the same commit, so
+# this workflow intentionally never runs `opennextjs-cloudflare deploy` or
+# `wrangler deploy`.
+#
+# Because Workers Builds and this workflow both fire on the same `push` and
+# are otherwise unconnected, nothing in this file can structurally block the
+# Workers Builds deploy from happening — the `migrations-check` and
+# `smoke-test` jobs below are a monitoring/alerting safety net (fast, visible
+# failure a human can act on), not a hard gate on the deploy itself. If a
+# true gate is wanted, that has to be configured on the Cloudflare side
+# (e.g. disabling automatic deploy, or requiring manual promotion).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Avoid piling up redundant runs when someone pushes several commits quickly.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Typecheck, lint, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Do not pass `version:` here — package.json already pins
+      # `packageManager: pnpm@11.18.0`, and pnpm/action-setup reads that on
+      # its own. Passing both risks a "multiple versions specified" error.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit -p tsconfig.json
+
+      # Lint is intentionally NON-BLOCKING for now (continue-on-error).
+      #
+      # Verified by hand on 2026-08-09, current `pnpm exec eslint .` output:
+      #   - src/domain/services/statement-text-parser.ts:18 — two
+      #     `prefer-const` errors.
+      #   - cloudflare-env.d.ts — two "unused eslint-disable directive"
+      #     warnings (generated file, committed for CI typecheck per
+      #     427fc16).
+      # (The task brief that prompted this workflow also mentioned two
+      # react-hooks warnings in a since-refactored src/app/page.tsx; that
+      # file no longer exists — it moved to src/app/(app)/ — so those are
+      # gone already.)
+      #
+      # Both domain/ and the (app)/ refactor are explicitly owned by other
+      # agents mid-edit at the time this workflow was written, so fixing
+      # them here is out of scope. Flip `continue-on-error` to `false` once
+      # statement-text-parser.ts's prefer-const errors are fixed (the only
+      # real errors left) — that is the concrete condition for making this
+      # blocking, not "the refactor settles down".
+      - name: Lint (report-only — see comment above before making blocking)
+        run: pnpm exec eslint .
+        continue-on-error: true
+
+      - name: Build
+        run: pnpm build
+
+  migrations-check:
+    name: Check for unapplied D1 migrations (production)
+    needs: [checks]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Check-only, not auto-apply. `wrangler d1 migrations apply db --remote`
+      # is deliberately NOT run here. Rationale (deciding between the two
+      # options weighed for this repo):
+      #   - Auto-apply would run in parallel with Workers Builds' own
+      #     deploy (both trigger off the same push, with no ordering
+      #     guarantee), so it would not reliably apply migrations *before*
+      #     the new code that needs them goes live anyway — it only closes
+      #     the gap sometimes, while adding a path that can execute schema
+      #     changes against production unattended, including against a
+      #     migration file that may still be mid-edit by another agent when
+      #     the push happens.
+      #   - Check-only can't block the Workers Builds deploy either (see
+      #     top-of-file note), but it fails loudly and fast, on every push
+      #     to main, whenever production is missing a migration — giving a
+      #     human a clear, immediate signal to run the apply command by
+      #     hand (`pnpm exec wrangler d1 migrations apply db --remote`)
+      #     rather than discovering it from a broken production site.
+      # This is the safer, less-magic option, matching how migrations are
+      # already being run manually today.
+      - name: List unapplied migrations against production D1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -uo pipefail
+
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN secret is not set — skipping the D1 migrations check. Add the secret (see README) to enable it."
+            exit 0
+          fi
+
+          OUTPUT="$(pnpm exec wrangler d1 migrations list db --remote 2>&1)"
+          STATUS=$?
+          echo "$OUTPUT"
+
+          if [ "$STATUS" -ne 0 ]; then
+            echo "::error::Could not determine migration state (wrangler exited $STATUS) — check the CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID secrets and the output above, not necessarily pending migrations."
+            exit 1
+          fi
+
+          if ! grep -q "No migrations to apply" <<< "$OUTPUT"; then
+            echo "::error::Pending D1 migrations detected on production. Run 'pnpm exec wrangler d1 migrations apply db --remote' by hand before/soon after this deploy — code depending on the new schema may already be live."
+            exit 1
+          fi
+
+          echo "No pending migrations on production."
+
+  smoke-test:
+    name: Post-deploy production smoke test
+    needs: [checks]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      # Workers Builds deploys asynchronously off the same push that
+      # triggers this job — there is no signal here for "the new deploy is
+      # live" other than polling. Retrying with real assertions each
+      # attempt (bounded attempts, short delay) is not the same as sleeping
+      # an arbitrary duration and checking once: every attempt is a full,
+      # honest smoke run, and success is only trusted once the asset
+      # fingerprint scripts/smoke.mjs prints has changed from the
+      # pre-attempt baseline — Next.js content-hashes static assets, so a
+      # changed fingerprint proves this is genuinely the new bundle rather
+      # than the previous deploy still being live (a plain retry loop
+      # without this would happily go green against the old deployment).
+      # If the fingerprint never changes within the attempt budget, the
+      # assertions still gate pass/fail, but a warning is printed rather
+      # than a hard failure, since a commit that doesn't touch the client
+      # bundle (docs, workflow-only, etc.) legitimately never changes it.
+      - name: Smoke test (retries while confirming the fingerprint changed)
+        run: |
+          set -uo pipefail
+          URL="https://cardstats.huyab.click"
+          ATTEMPTS=10
+          DELAY=15
+
+          extract_fp() {
+            grep -o 'FINGERPRINT=[a-zA-Z0-9]*' | head -1 | cut -d= -f2
+          }
+
+          BASELINE_OUTPUT="$(node scripts/smoke.mjs "$URL" 2>&1 || true)"
+          BASELINE_FP="$(printf '%s\n' "$BASELINE_OUTPUT" | extract_fp)"
+          echo "Baseline asset fingerprint (may still be the previous deploy): ${BASELINE_FP:-<none>}"
+
+          LAST_STATUS=1
+          DEPLOY_CONFIRMED=0
+
+          for i in $(seq 1 "$ATTEMPTS"); do
+            echo "--- Attempt $i/$ATTEMPTS ---"
+            LAST_OUTPUT="$(node scripts/smoke.mjs "$URL" 2>&1)"
+            LAST_STATUS=$?
+            echo "$LAST_OUTPUT"
+            CURRENT_FP="$(printf '%s\n' "$LAST_OUTPUT" | extract_fp)"
+
+            if [ "$LAST_STATUS" -eq 0 ] && [ -n "$CURRENT_FP" ] && [ "$CURRENT_FP" != "$BASELINE_FP" ]; then
+              echo "Fingerprint changed ($BASELINE_FP -> $CURRENT_FP): confirmed testing the new deploy."
+              DEPLOY_CONFIRMED=1
+              break
+            fi
+
+            if [ "$LAST_STATUS" -eq 0 ] && [ "$i" -lt "$ATTEMPTS" ]; then
+              echo "Assertions pass but fingerprint unchanged — retrying in ${DELAY}s in case the deploy is still rolling out..."
+              sleep "$DELAY"
+            elif [ "$i" -lt "$ATTEMPTS" ]; then
+              echo "Assertions failed, retrying in ${DELAY}s..."
+              sleep "$DELAY"
+            fi
+          done
+
+          if [ "$LAST_STATUS" -ne 0 ]; then
+            echo "::error::Smoke assertions failed against $URL after $ATTEMPTS attempts."
+            exit 1
+          fi
+
+          if [ "$DEPLOY_CONFIRMED" -ne 1 ]; then
+            echo "::warning::Smoke assertions passed but the asset fingerprint never changed from the pre-run baseline ($BASELINE_FP). This may mean the deploy is a no-op for the client bundle (e.g. a docs-only commit), or Workers Builds had not finished rolling out within the attempt budget. Passing on assertions alone."
+          fi
+
+          echo "Smoke test finished: assertions passed."

@@ -86,6 +86,55 @@ tính năng liên kết tài khoản. Nếu một người đã có tài khoản
 rồi bấm "Tiếp tục với Google" bằng đúng email Gmail đó, hệ thống **không tự
 gộp** hai tài khoản — sẽ có 2 user riêng biệt trong DB.
 
+## CI/CD
+
+Deploy production chạy qua **Cloudflare Workers Builds**, đã kết nối thẳng
+với repo GitHub và tự deploy mỗi khi có push lên `main` — không cấu hình
+trong repo này (không có bước "deploy" trong `.github/workflows/`, để
+tránh hai hệ thống deploy cùng lúc). `.github/workflows/ci.yml` chỉ làm ba
+việc: kiểm tra trước khi merge/deploy, cảnh báo nếu D1 production còn
+migration chưa apply, và smoke test sau khi đã deploy.
+
+### Secret cần thêm ở GitHub (Settings → Secrets and variables → Actions)
+
+Chỉ cần tên bên dưới — **không tự tạo giá trị**, dùng đúng token/ID thật của
+bạn:
+
+- `CLOUDFLARE_API_TOKEN` — token có quyền đọc D1 (dùng cho bước kiểm tra
+  migration chưa apply trên production; không có secret này thì bước đó tự
+  bỏ qua và cảnh báo, không fail cả workflow).
+- `CLOUDFLARE_ACCOUNT_ID` — account ID Cloudflare, đi kèm token trên.
+
+### Chạy smoke test tay
+
+```bash
+node scripts/smoke.mjs https://cardstats.huyab.click
+# hoặc test local:
+node scripts/smoke.mjs http://localhost:3000
+```
+
+Script kiểm tra `/login` trả 200 và có nội dung tiếng Việt thật, `/api/stats`
+**phải** trả 401 khi chưa đăng nhập (assertion quan trọng nhất — nếu route
+này trả 200 thì dữ liệu chi tiêu của mọi người đang bị public), và `/` không
+lộ số liệu khi chưa có session. Exit code khác 0 nếu có kiểm tra fail.
+
+### Quy trình chạy migration
+
+D1 production **không** tự apply migration khi deploy — Workers Builds chỉ
+build và deploy code, không chạy `wrangler d1 migrations apply`. Sau khi
+thêm migration mới trong `migrations/`, chạy tay:
+
+```bash
+pnpm exec wrangler d1 migrations apply db --remote
+```
+
+CI có một job (`migrations-check`) chạy `wrangler d1 migrations list db
+--remote` trên mỗi push vào `main` và **fail** nếu còn migration chưa apply,
+để không ai vô tình deploy code cần bảng/cột mới mà quên chạy migration.
+Job này chỉ cảnh báo (không tự chạy migration, và cũng không chặn được
+Workers Builds deploy vì hai hệ thống độc lập, chạy song song trên cùng một
+push) — thấy fail thì chạy lệnh trên bằng tay ngay.
+
 ## Stack
 
 - [Next.js](https://nextjs.org) (App Router)
