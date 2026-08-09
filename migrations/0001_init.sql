@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS cct_transactions (
+CREATE TABLE IF NOT EXISTS cardstat_transactions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   date TEXT NOT NULL,
   description TEXT NOT NULL,

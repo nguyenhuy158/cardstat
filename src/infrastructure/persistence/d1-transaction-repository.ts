@@ -13,7 +13,7 @@ export class D1TransactionRepository implements TransactionRepository {
   constructor(private readonly db: D1Database) {}
 
   async list(filter: TransactionFilter): Promise<Transaction[]> {
-    let query = "SELECT * FROM cct_transactions WHERE 1=1";
+    let query = "SELECT * FROM cardstat_transactions WHERE 1=1";
     const params: (string | number)[] = [];
     if (filter.month) {
       query += " AND date LIKE ?";
@@ -31,7 +31,7 @@ export class D1TransactionRepository implements TransactionRepository {
 
   async create(input: NewTransaction): Promise<number> {
     const info = await this.db
-      .prepare(`INSERT INTO cct_transactions (date, description, amount, category) VALUES (?, ?, ?, ?)`)
+      .prepare(`INSERT INTO cardstat_transactions (date, description, amount, category) VALUES (?, ?, ?, ?)`)
       .bind(input.date, input.description, input.amount, input.category)
       .run();
     return info.meta.last_row_id;
@@ -39,7 +39,7 @@ export class D1TransactionRepository implements TransactionRepository {
 
   async createMany(inputs: NewTransaction[]): Promise<number> {
     const insert = this.db.prepare(
-      `INSERT INTO cct_transactions (date, description, amount, category, source_file) VALUES (?, ?, ?, ?, ?)`
+      `INSERT INTO cardstat_transactions (date, description, amount, category, source_file) VALUES (?, ?, ?, ?, ?)`
     );
     const batch = inputs.map((r) =>
       insert.bind(r.date, r.description, r.amount, r.category, r.source_file ?? null)
@@ -59,11 +59,11 @@ export class D1TransactionRepository implements TransactionRepository {
       }
     }
     values.push(id);
-    await this.db.prepare(`UPDATE cct_transactions SET ${fields.join(", ")} WHERE id = ?`).bind(...values).run();
+    await this.db.prepare(`UPDATE cardstat_transactions SET ${fields.join(", ")} WHERE id = ?`).bind(...values).run();
   }
 
   async delete(id: number): Promise<void> {
-    await this.db.prepare("DELETE FROM cct_transactions WHERE id = ?").bind(id).run();
+    await this.db.prepare("DELETE FROM cardstat_transactions WHERE id = ?").bind(id).run();
   }
 
   async getStats(): Promise<Stats> {
@@ -71,7 +71,7 @@ export class D1TransactionRepository implements TransactionRepository {
       this.db
         .prepare(
           `SELECT category, SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END) as total
-           FROM cct_transactions GROUP BY category ORDER BY total DESC`
+           FROM cardstat_transactions GROUP BY category ORDER BY total DESC`
         )
         .all<CategoryTotal>(),
       this.db
@@ -79,7 +79,7 @@ export class D1TransactionRepository implements TransactionRepository {
           `SELECT substr(date, 1, 7) as month,
                   SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END) as spend,
                   SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) as income
-           FROM cct_transactions GROUP BY month ORDER BY month ASC`
+           FROM cardstat_transactions GROUP BY month ORDER BY month ASC`
         )
         .all<MonthTotal>(),
       this.db
@@ -88,14 +88,14 @@ export class D1TransactionRepository implements TransactionRepository {
             SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END) as totalSpend,
             SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) as totalIncome,
             COUNT(*) as count
-           FROM cct_transactions`
+           FROM cardstat_transactions`
         )
         .first<Stats["totals"]>(),
       this.db
-        .prepare(`SELECT DISTINCT substr(date, 1, 7) as month FROM cct_transactions ORDER BY month DESC`)
+        .prepare(`SELECT DISTINCT substr(date, 1, 7) as month FROM cardstat_transactions ORDER BY month DESC`)
         .all<{ month: string }>(),
       this.db
-        .prepare(`SELECT DISTINCT category FROM cct_transactions ORDER BY category ASC`)
+        .prepare(`SELECT DISTINCT category FROM cardstat_transactions ORDER BY category ASC`)
         .all<{ category: string }>(),
     ]);
 
