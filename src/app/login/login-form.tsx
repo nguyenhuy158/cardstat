@@ -11,6 +11,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   INVALID_USERNAME_OR_PASSWORD: "Sai username hoặc mật khẩu.",
   USERNAME_IS_ALREADY_TAKEN: "Username đã có người dùng.",
   USER_ALREADY_EXISTS: "Tài khoản đã tồn tại.",
+  // Provider Google chưa được cấu hình client id/secret trên server.
+  PROVIDER_NOT_FOUND: "Đăng nhập Google chưa được cấu hình trên máy chủ.",
 };
 
 const USERNAME_PATTERN = /^[a-zA-Z0-9_.]+$/;
@@ -52,7 +54,7 @@ function GoogleMark() {
 const FIELD_CLASS =
   "max-sm:min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-3 text-base outline-none focus:border-zinc-400 sm:py-2 sm:text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500";
 
-export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function LoginForm() {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const [mode, setMode] = useState<AuthMode>("sign-in");
@@ -109,7 +111,10 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
     });
     setGooglePending(false);
     if (result.error) {
-      setError(result.error.message || "Không mở được đăng nhập Google.");
+      const code = result.error.code || "";
+      setError(
+        AUTH_ERROR_MESSAGES[code] || result.error.message || "Không mở được đăng nhập Google.",
+      );
     }
   }
 
@@ -175,24 +180,22 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
         {submitting ? "Đang xử lý..." : mode === "sign-in" ? "Đăng nhập" : "Đăng ký"}
       </button>
 
-      {googleEnabled && (
-        <>
-          <div className="my-4 flex items-center gap-3">
-            <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-            <span className="text-xs font-medium uppercase tracking-wide text-zinc-400">hoặc</span>
-            <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-          </div>
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={googlePending}
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
-          >
-            <GoogleMark />
-            {googlePending ? "Đang chuyển..." : "Tiếp tục với Google"}
-          </button>
-        </>
-      )}
+      {/* Luôn hiện nút Google; nếu server chưa cấu hình provider thì bấm vào
+          sẽ nhận lỗi PROVIDER_NOT_FOUND và hiển thị thông báo tiếng Việt. */}
+      <div className="my-4 flex items-center gap-3">
+        <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-xs font-medium uppercase tracking-wide text-zinc-400">hoặc</span>
+        <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={googlePending}
+        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+      >
+        <GoogleMark />
+        {googlePending ? "Đang chuyển..." : "Tiếp tục với Google"}
+      </button>
 
       <button
         type="button"
