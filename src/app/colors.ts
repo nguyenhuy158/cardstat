@@ -18,6 +18,22 @@ export const CATEGORY_COLORS: Record<string, string> = {
   Khác: "#6b7280",
 };
 
+// Chữ trắng chỉ đạt AA (4.5:1) trên phần lớn màu trên, nhưng ba màu sáng dưới đây
+// chỉ được 3.5–3.7:1 — với chúng phải lật sang mực tối (#18181b đạt 4.7–5.0:1).
+// Đổi màu chữ thay vì làm tối màu nền vì cùng bảng màu này còn tô cột biểu đồ và
+// đã qua validator (CVD / lightness band); sửa nền là phải kiểm định lại cả bảng.
+const DARK_INK_CATEGORIES = new Set(["Ăn uống", "Trả góp", "Du lịch"]);
+
+const FALLBACK_COLOR = CATEGORY_COLORS["Khác"];
+
+/** Nền + màu chữ của chip danh mục, luôn đạt tương phản AA. */
+export function categoryChipStyle(category: string) {
+  return {
+    backgroundColor: CATEGORY_COLORS[category] || FALLBACK_COLOR,
+    color: DARK_INK_CATEGORIES.has(category) ? "#18181b" : "#ffffff",
+  };
+}
+
 export const SERIES_COLORS = {
   spend: "#dc2626",
   income: "#0d9488",

@@ -12,7 +12,7 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { CATEGORY_COLORS } from "./colors";
+import { categoryChipStyle } from "./colors";
 import { formatDate, formatDateTime, formatMonth } from "./format";
 import { Select } from "./select";
 
@@ -79,8 +79,8 @@ const columns = helper.columns([
       const category = info.getValue();
       return (
         <span
-          className="rounded-full px-2 py-0.5 text-xs text-white"
-          style={{ backgroundColor: CATEGORY_COLORS[category] || "#6b7280" }}
+          className="rounded-full px-2 py-0.5 text-xs"
+          style={categoryChipStyle(category)}
         >
           {category}
         </span>
@@ -119,9 +119,10 @@ const columns = helper.columns([
 ]);
 
 function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
-  // Mũi tên "chưa sắp xếp" là chỉ báo có thể sort, không phải chữ nội dung —
-  // zinc-400/500 đủ thấy mà vẫn nhạt hơn hẳn nhãn cột (zinc-500/400 đậm hơn).
-  if (!direction) return <span className="text-zinc-400 dark:text-zinc-500">↕</span>;
+  // Cùng mức tương phản AA với nhãn cột: hình mũi tên đã phân biệt trạng thái
+  // ("↕" chưa sắp xếp vs "↑"/"↓"), nên không cần làm nhạt đi để báo hiệu — làm
+  // nhạt chỉ khiến chỉ báo tụt xuống 2.56:1 và biến thành tín hiệu chỉ-bằng-màu.
+  if (!direction) return <span className="text-zinc-500 dark:text-zinc-400">↕</span>;
   return <span>{direction === "asc" ? "↑" : "↓"}</span>;
 }
 
@@ -265,8 +266,8 @@ export function TransactionsTable({
                 <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                   <span className="whitespace-nowrap">{formatDate(t.date)}</span>
                   <span
-                    className="rounded-full px-2 py-0.5 text-white"
-                    style={{ backgroundColor: CATEGORY_COLORS[t.category] || "#6b7280" }}
+                    className="rounded-full px-2 py-0.5"
+                    style={categoryChipStyle(t.category)}
                   >
                     {t.category}
                   </span>
