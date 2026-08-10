@@ -1,8 +1,10 @@
 import { ImageResponse } from "next/og";
+import { BrandIcon } from "./brand-icon";
 
-// Icon đơn giản, tự sinh bằng code (không thêm dependency, không cần file ảnh
-// tĩnh) — chữ "C" của Cardstat trên nền accent xanh, theo hướng dẫn
-// app-icons.md của Next 16 (import từ "next/og", không phải "next/server").
+// Icon tự sinh bằng code (không thêm dependency, không cần file ảnh tĩnh) —
+// logo thẻ tín dụng cách điệu, theo hướng dẫn app-icons.md của Next 16
+// (import từ "next/og", không phải "next/server"). Bo góc vì đây là favicon
+// tab trình duyệt, không có OS nào bo giúp như icon cài đặt trên điện thoại.
 export const size = {
   width: 32,
   height: 32,
@@ -10,25 +12,5 @@ export const size = {
 export const contentType = "image/png";
 
 export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#2563eb",
-          color: "#ffffff",
-          fontSize: 20,
-          fontWeight: 700,
-          borderRadius: 6,
-        }}
-      >
-        C
-      </div>
-    ),
-    { ...size },
-  );
+  return new ImageResponse(<BrandIcon size={size.width} radius={size.width * 0.19} />, { ...size });
 }
