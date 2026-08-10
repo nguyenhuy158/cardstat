@@ -15,6 +15,13 @@ import { DesktopNav } from "./desktop-nav";
  * không còn trạng thái "đang kiểm tra session" như thời better-auth (client phải
  * gọi /api/auth/get-session mới biết) — chưa đăng nhập thì redirect thẳng, tên
  * người dùng render luôn ở lần vẽ đầu, không cần skeleton.
+ *
+ * Bố cục tách hẳn theo breakpoint thay vì header dùng chung: dưới `sm` là
+ * header sticky + bottom-nav (không đủ chỗ ngang cho sidebar); từ `sm` trở
+ * lên là sidebar cố định bên trái (`DesktopNav`, xem file đó để biết lý do
+ * đổi từ nav ngang nhét trong header). Header cũ nhét cả tiêu đề dài, 4 link
+ * nav, tên người dùng và nút đăng xuất vào một hàng nên ở độ rộng vừa (laptop
+ * nhỏ, cửa sổ chia đôi) rất dễ bấm nhầm hoặc bị vỡ dòng.
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const claims = await getSessionClaims();
@@ -22,36 +29,35 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-      {/* Thanh header sticky gọn cho mobile: tiêu đề bên trái, người dùng + đăng
-          xuất bên phải. Trên sm+ có thêm nav ngang vì bottom-nav bị ẩn ở desktop. */}
-      <header className="sticky top-0 z-20 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/95">
-        <div className="mx-auto flex items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:max-w-5xl">
-          <div className="flex min-w-0 items-center gap-6">
-            <h1 className="min-w-0 truncate text-base font-bold sm:text-xl">
-              Thống kê chi tiêu thẻ tín dụng
-            </h1>
-            <DesktopNav />
-          </div>
-          <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
-            <span className="max-w-[6rem] truncate text-zinc-500 sm:max-w-[10rem] dark:text-zinc-400">
-              {claims.name || claims.email}
-            </span>
-            {/* Thẻ <a> chứ không phải <button>: đăng xuất là điều hướng sang SSO
-                (chỉ nó xoá được cookie của cả domain), không phải gọi API. */}
-            <a
-              href="/api/auth/logout"
-              className="flex h-11 items-center rounded-lg border border-zinc-200 px-3 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
-              Đăng xuất
-            </a>
-          </div>
-        </div>
-      </header>
+  const userLabel = claims.name || claims.email;
 
-      {/* pb lớn hơn trên mobile để bottom-nav không che nội dung/hàng cuối bảng */}
-      <div className="mx-auto px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8 lg:max-w-5xl">{children}</div>
+  return (
+    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+      <DesktopNav userLabel={userLabel} />
+
+      <div className="min-w-0 flex-1">
+        {/* Header chỉ còn cho mobile: sidebar đã đảm nhiệm nav + tên người dùng +
+            đăng xuất từ `sm` trở lên. */}
+        <header className="sticky top-0 z-20 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm sm:hidden dark:border-zinc-800 dark:bg-zinc-950/95">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <h1 className="min-w-0 truncate text-base font-bold">Thống kê chi tiêu thẻ tín dụng</h1>
+            <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
+              <span className="max-w-[6rem] truncate text-zinc-500 dark:text-zinc-400">{userLabel}</span>
+              {/* Thẻ <a> chứ không phải <button>: đăng xuất là điều hướng sang SSO
+                  (chỉ nó xoá được cookie của cả domain), không phải gọi API. */}
+              <a
+                href="/api/auth/logout"
+                className="flex h-11 items-center rounded-lg border border-zinc-200 px-3 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              >
+                Đăng xuất
+              </a>
+            </div>
+          </div>
+        </header>
+
+        {/* pb lớn hơn trên mobile để bottom-nav không che nội dung/hàng cuối bảng */}
+        <div className="mx-auto px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8 lg:max-w-5xl">{children}</div>
+      </div>
 
       <BottomNav />
     </div>

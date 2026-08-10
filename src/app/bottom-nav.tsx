@@ -56,7 +56,8 @@ function TransactionsIcon() {
   );
 }
 
-const ICONS: Record<string, () => React.ReactNode> = {
+// Export để SidebarNav (desktop) dùng chung bộ icon với bottom-nav (mobile).
+export const NAV_ICONS: Record<string, () => React.ReactNode> = {
   "/": OverviewIcon,
   "/upload": UploadIcon,
   "/charts": ChartsIcon,
@@ -78,7 +79,7 @@ export function BottomNav() {
     >
       {NAV_ITEMS.map((item) => {
         const isActive = item.href === "/" ? pathname === "/" : pathname === item.href;
-        const Icon = ICONS[item.href];
+        const Icon = NAV_ICONS[item.href];
         return (
           <Link
             key={item.href}
