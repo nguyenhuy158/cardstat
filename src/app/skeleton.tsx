@@ -34,23 +34,55 @@ function LoadingStatus({ label = "Đang tải dữ liệu" }: { label?: string }
   );
 }
 
-/** Trang "Tổng quan" — khớp lưới 3 thẻ thật (`grid-cols-2 sm:grid-cols-3`, thẻ 3 chiếm 2 cột ở mobile). */
+/**
+ * Trang "Tổng quan" — khớp cả 4 khối thật: lưới 3 thẻ tổng, lưới 4 thẻ
+ * "Tháng này", thẻ danh mục chi nhiều nhất, và danh sách "Giao dịch gần đây".
+ */
 export function OverviewSkeleton() {
   return (
-    <section aria-busy="true" className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+    <div aria-busy="true" className="flex flex-col gap-6">
       <LoadingStatus />
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          className={`rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900 ${
-            i === 2 ? "col-span-2 sm:col-span-1" : ""
-          }`}
-        >
-          <Block className="h-3 w-20 sm:h-4 sm:w-28" />
-          <Block className="mt-2 h-5 w-24 sm:h-7 sm:w-32" />
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className={`rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900 ${
+              i === 2 ? "col-span-2 sm:col-span-1" : ""
+            }`}
+          >
+            <Block className="h-3 w-20 sm:h-4 sm:w-28" />
+            <Block className="mt-2 h-5 w-24 sm:h-7 sm:w-32" />
+          </div>
+        ))}
+      </section>
+
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <Block className="h-3 w-16 sm:h-4 sm:w-20" />
+            <Block className="mt-2 h-5 w-20 sm:h-6 sm:w-24" />
+          </div>
+        ))}
+      </section>
+
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <Block className="h-3 w-40" />
+        <div className="mt-3 flex items-center justify-between">
+          <Block className="h-6 w-24 rounded-full" />
+          <Block className="h-6 w-28" />
         </div>
-      ))}
-    </section>
+      </div>
+
+      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <Block className="mb-3 h-3 w-32" />
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex items-center justify-between gap-3 py-2">
+            <Block className="h-4 w-40" />
+            <Block className="h-4 w-20" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
