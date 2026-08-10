@@ -312,7 +312,12 @@ export function TransactionsTable({
         })}
       </div>
 
-      {/* Mobile (base): danh sách dạng card, cùng row model với bảng desktop. */}
+      {/* `min-h-0 flex-1 overflow-y-auto`: đây là phần duy nhất cuộn trong bảng —
+          toolbar, nút sắp xếp mobile và phân trang bên dưới đứng yên, không bị
+          đẩy ra ngoài màn hình khi danh sách dài. Bọc chung cả bản mobile lẫn
+          desktop vì mỗi lúc chỉ một bản hiển thị (`sm:hidden`/`hidden sm:block`). */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+      {/* Mobile (base): danh sách dạng card, cùng row model như bảng desktop. */}
       <div className="flex flex-col gap-2 sm:hidden">
         {rows.map((row) => {
           const t = row.original;
@@ -444,6 +449,7 @@ export function TransactionsTable({
             )}
           </tbody>
         </table>
+      </div>
       </div>
 
       {filteredCount > pageSize && (

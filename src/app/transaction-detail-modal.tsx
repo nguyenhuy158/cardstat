@@ -41,7 +41,7 @@ export function TransactionDetailModal({
     <div
       role="presentation"
       onClick={onClose}
-      className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 sm:items-center"
+      className="fixed inset-0 z-40 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center"
     >
       <div
         role="dialog"

@@ -13,8 +13,9 @@ import { NAV_ICONS, NAV_ITEMS } from "../bottom-nav";
  * hàng nên vùng bấm rộng hơn hẳn, và không còn cạnh tranh chỗ với phần còn
  * lại của header.
  *
- * `sticky top-0 h-screen`: sidebar đứng yên khi cuộn nội dung dài (ví dụ
- * bảng giao dịch nhiều trang) — không thì cuộn xuống là mất hẳn nav.
+ * `h-screen`: layout.tsx khoá cả khung theo `h-dvh` và để riêng vùng nội dung
+ * cuộn (không phải cả trang), nên sidebar vốn đã đứng yên — `sticky top-0`
+ * chỉ còn là lưới an toàn, không thật sự có ngữ cảnh cuộn nào để dính vào.
  */
 export function DesktopNav({ userLabel }: { userLabel: string }) {
   const pathname = usePathname();

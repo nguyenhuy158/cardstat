@@ -22,6 +22,14 @@ import { DesktopNav } from "./desktop-nav";
  * đổi từ nav ngang nhét trong header). Header cũ nhét cả tiêu đề dài, 4 link
  * nav, tên người dùng và nút đăng xuất vào một hàng nên ở độ rộng vừa (laptop
  * nhỏ, cửa sổ chia đôi) rất dễ bấm nhầm hoặc bị vỡ dòng.
+ *
+ * Toàn bộ khung khoá cứng theo chiều cao màn hình (`h-dvh`, không `min-h-screen`)
+ * và tự cuộn ở vùng nội dung (`overflow-y-auto`) thay vì cuộn cả trang — sidebar
+ * và header nhờ vậy đứng yên tuyệt đối, không cần `sticky` chống trôi nữa. Trang
+ * nào muốn tự chia vùng cuộn riêng (ví dụ bảng Giao dịch: thanh lọc + phân
+ * trang đứng yên, chỉ danh sách dòng cuộn) thì tự đặt `h-full flex flex-col`
+ * ở gốc của trang đó — div nội dung ở đây đã truyền xuống một chiều cao xác
+ * định để `h-full` có cái để tham chiếu.
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const claims = await getSessionClaims();
@@ -32,13 +40,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const userLabel = claims.name || claims.email;
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="flex h-dvh overflow-hidden bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
       <DesktopNav userLabel={userLabel} />
 
-      <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header chỉ còn cho mobile: sidebar đã đảm nhiệm nav + tên người dùng +
             đăng xuất từ `sm` trở lên. */}
-        <header className="sticky top-0 z-20 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm sm:hidden dark:border-zinc-800 dark:bg-zinc-950/95">
+        <header className="shrink-0 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm sm:hidden dark:border-zinc-800 dark:bg-zinc-950/95">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <h1 className="min-w-0 truncate text-base font-bold">Thống kê chi tiêu thẻ tín dụng</h1>
             <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
@@ -56,7 +64,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* pb lớn hơn trên mobile để bottom-nav không che nội dung/hàng cuối bảng */}
-        <div className="mx-auto px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8 lg:max-w-5xl">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto h-full px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-8 lg:max-w-5xl">{children}</div>
+        </div>
       </div>
 
       <BottomNav />
