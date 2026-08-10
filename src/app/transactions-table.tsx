@@ -123,10 +123,14 @@ const columns = helper.columns([
 ]);
 
 function csvEscape(value: string): string {
+  // Số tiền âm ("-50000") hay mô tả copy từ PDF bắt đầu bằng =/+/-/@ đều bị
+  // Excel/Sheets hiểu thành công thức khi mở file — thêm nháy đơn phía trước
+  // để ép về dạng text (CSV formula injection, xem OWASP CSV Injection).
+  let v = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
   // Bọc dấu ngoặc kép nếu có phẩy/ngoặc kép/xuống dòng — mô tả giao dịch có
   // thể chứa cả ba (copy nguyên từ PDF sao kê).
-  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-  return value;
+  if (/[",\n\r]/.test(v)) v = `"${v.replace(/"/g, '""')}"`;
+  return v;
 }
 
 /** Xuất đúng tập giao dịch truyền vào (đã lọc/sắp xếp ở nơi gọi) ra file CSV, tải về ngay trên trình duyệt. */
@@ -135,7 +139,9 @@ function exportTransactionsCsv(rows: Transaction[]) {
   // ﻿ (BOM): Excel trên Windows không tự nhận UTF-8 nếu thiếu, chữ có
   // dấu tiếng Việt sẽ hiện sai ký tự khi mở file.
   const lines = [header.join(",")].concat(
-    rows.map((t) => [t.date, csvEscape(t.description), csvEscape(t.category), String(t.amount)].join(",")),
+    rows.map((t) =>
+      [t.date, csvEscape(t.description), csvEscape(t.category), csvEscape(String(t.amount))].join(","),
+    ),
   );
   const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
