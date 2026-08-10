@@ -122,6 +122,30 @@ const columns = helper.columns([
   }),
 ]);
 
+function csvEscape(value: string): string {
+  // Bọc dấu ngoặc kép nếu có phẩy/ngoặc kép/xuống dòng — mô tả giao dịch có
+  // thể chứa cả ba (copy nguyên từ PDF sao kê).
+  if (/[",\n]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
+  return value;
+}
+
+/** Xuất đúng tập giao dịch truyền vào (đã lọc/sắp xếp ở nơi gọi) ra file CSV, tải về ngay trên trình duyệt. */
+function exportTransactionsCsv(rows: Transaction[]) {
+  const header = ["Ngày", "Mô tả", "Danh mục", "Số tiền"];
+  // ﻿ (BOM): Excel trên Windows không tự nhận UTF-8 nếu thiếu, chữ có
+  // dấu tiếng Việt sẽ hiện sai ký tự khi mở file.
+  const lines = [header.join(",")].concat(
+    rows.map((t) => [t.date, csvEscape(t.description), csvEscape(t.category), String(t.amount)].join(",")),
+  );
+  const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `giao-dich-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
   // Cùng mức tương phản AA với nhãn cột: hình mũi tên đã phân biệt trạng thái
   // ("↕" chưa sắp xếp vs "↑"/"↓"), nên không cần làm nhạt đi để báo hiệu — làm
@@ -196,6 +220,13 @@ export function TransactionsTable({
   const firstRow = filteredCount === 0 ? 0 : pageIndex * pageSize + 1;
   const lastRow = Math.min((pageIndex + 1) * pageSize, filteredCount);
 
+  // Xuất theo đúng tập đang lọc/sắp xếp (search + hai Select), KHÔNG chỉ trang
+  // hiện tại — `getRowModel()` đã cắt theo trang, phải lùi về sortedRowModel
+  // (bước ngay trước pagination) để lấy toàn bộ.
+  function handleExportCsv() {
+    exportTransactionsCsv(table.getSortedRowModel().rows.map((row) => row.original));
+  }
+
   // Nhãn hiển thị "02/2026" nhưng value gửi lên API vẫn giữ "YYYY-MM" thô —
   // đổi value theo định dạng hiển thị sẽ làm hỏng filter (?month=).
   const monthOptions = months.map((m) => ({ value: m.month, label: formatMonth(m.month) }));
@@ -231,6 +262,14 @@ export function TransactionsTable({
             className="sm:w-44"
           />
         </div>
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          disabled={filteredCount === 0}
+          className="h-10 shrink-0 rounded-lg border border-zinc-200 px-3 text-sm font-medium transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:hover:bg-zinc-800"
+        >
+          Xuất CSV
+        </button>
       </div>
 
       {/* Điều khiển sắp xếp riêng cho mobile: layout dạng card không có header cột để bấm. */}
