@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { BudgetsPanel } from "@/app/budgets";
+import { CardPaymentsPanel, type CardPaymentMonth } from "@/app/card-payments";
 import { CategoryChart, MonthChart } from "@/app/charts";
 import { FetchError } from "@/app/fetch-error";
 import { InsightsPanel, type Insights } from "@/app/insights";
@@ -11,6 +12,7 @@ import { ChartsSkeleton, InsightsSkeleton } from "@/app/skeleton";
 type Stats = {
   byCategory: { category: string; total: number }[];
   byMonth: { month: string; spend: number; income: number }[];
+  cardPaymentsByMonth: CardPaymentMonth[];
 };
 
 /** Trang "Biểu đồ" (`/charts`) — hai biểu đồ và khu vực Dự đoán & Insight, mỗi phần tự fetch API riêng. */
@@ -64,6 +66,8 @@ export default function ChartsPage() {
       </div>
 
       <div className="lg:col-span-2">{insights === null ? <InsightsSkeleton /> : <InsightsPanel insights={insights} />}</div>
+
+      <CardPaymentsPanel data={stats.cardPaymentsByMonth} />
 
       <div className="lg:col-span-2">
         <BudgetsPanel />

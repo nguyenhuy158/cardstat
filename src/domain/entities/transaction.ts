@@ -32,9 +32,12 @@ export type TransactionFilter = {
 
 export type CategoryTotal = { category: string; total: number };
 export type MonthTotal = { month: string; spend: number; income: number };
+/** Tổng tiền đã trả vào thẻ (danh mục "Thanh toán thẻ", amount > 0) của một tháng. */
+export type CardPaymentMonth = { month: string; total: number };
 export type Stats = {
   byCategory: CategoryTotal[];
   byMonth: MonthTotal[];
+  cardPaymentsByMonth: CardPaymentMonth[];
   totals: { totalSpend: number; totalIncome: number; count: number };
   months: { month: string }[];
   categories: { category: string }[];

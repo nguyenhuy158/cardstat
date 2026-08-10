@@ -1,6 +1,7 @@
 import type { TransactionRepository } from "@/domain/ports/transaction-repository";
 import type {
   BudgetWithSpend,
+  CardPaymentMonth,
   CategoryTotal,
   ImportResult,
   MonthTotal,
@@ -11,6 +12,7 @@ import type {
   TransactionUpdate,
 } from "@/domain/entities/transaction";
 import type { DeleteUploadResult, Upload } from "@/domain/entities/upload";
+import { CARD_PAYMENT_CATEGORY } from "@/domain/services/categorize";
 
 /**
  * Adapter khoá theo một user: `userId` nằm ở constructor chứ không phải tham số
@@ -174,7 +176,7 @@ export class D1TransactionRepository implements TransactionRepository {
   }
 
   async getStats(): Promise<Stats> {
-    const [byCategory, byMonth, totals, months, categories] = await Promise.all([
+    const [byCategory, byMonth, cardPaymentsByMonth, totals, months, categories] = await Promise.all([
       this.db
         .prepare(
           `SELECT category, SUM(CASE WHEN amount < 0 THEN -amount ELSE 0 END) as total
@@ -191,6 +193,18 @@ export class D1TransactionRepository implements TransactionRepository {
         )
         .bind(this.userId)
         .all<MonthTotal>(),
+      // Riêng danh mục "Thanh toán thẻ", amount > 0: đây là khoản trả nợ vào
+      // thẻ, khác với `income` ở byMonth (gồm cả hoàn tiền, chuyển khoản vào
+      // linh tinh khác — không phải câu người dùng thật sự muốn hỏi).
+      this.db
+        .prepare(
+          `SELECT substr(date, 1, 7) as month, SUM(amount) as total
+           FROM cardstat_transactions
+           WHERE user_id = ? AND category = ? AND amount > 0
+           GROUP BY month ORDER BY month DESC`
+        )
+        .bind(this.userId, CARD_PAYMENT_CATEGORY)
+        .all<CardPaymentMonth>(),
       this.db
         .prepare(
           `SELECT
@@ -218,6 +232,7 @@ export class D1TransactionRepository implements TransactionRepository {
     return {
       byCategory: byCategory.results,
       byMonth: byMonth.results,
+      cardPaymentsByMonth: cardPaymentsByMonth.results,
       totals: totals ?? { totalSpend: 0, totalIncome: 0, count: 0 },
       months: months.results,
       categories: categories.results,

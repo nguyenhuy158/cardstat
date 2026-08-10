@@ -1,6 +1,9 @@
+/** Danh mục các khoản trả nợ vào thẻ — export riêng vì `getStats` cần lọc đúng danh mục này để tính tổng đã trả/tháng. */
+export const CARD_PAYMENT_CATEGORY = "Thanh toán thẻ";
+
 const RULES: { category: string; keywords: string[] }[] = [
   { category: "Trả góp", keywords: ["tg ls", "tra gop", "installment", "klk"] },
-  { category: "Thanh toán thẻ", keywords: ["vi pay", "vipay", "thanh toan the", "payment received", "napas"] },
+  { category: CARD_PAYMENT_CATEGORY, keywords: ["vi pay", "vipay", "thanh toan the", "payment received", "napas"] },
   { category: "Ăn uống", keywords: ["restaurant", "food", "coffee", "cafe", "highlands", "phuc long", "grab food", "shopeefood", "nha hang", "quan an", "bun", "pho", "an uong"] },
   { category: "Di chuyển", keywords: ["grab", "be car", "taxi", "xăng", "xang", "petrolimex", "gojek", "parking"] },
   { category: "Mua sắm", keywords: ["shopee", "lazada", "tiki", "amazon", "shopping", "mua sam", "big c", "coopmart", "winmart", "aeon"] },
