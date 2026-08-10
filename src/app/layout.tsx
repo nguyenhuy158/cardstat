@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { ServiceWorkerRegister } from "./sw-register";
 
 // Font chính: Be Vietnam Pro có bộ subset "vietnamese" đầy đủ, hiển thị đúng
 // các ký tự có dấu (ví dụ ế, ộ, ữ, ậ) mà không bị fallback sang font khác.
@@ -51,7 +52,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="vi"
       className={`${beVietnamPro.variable} ${plusJakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }
