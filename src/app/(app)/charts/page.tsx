@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { BudgetsPanel } from "@/app/budgets";
 import { CategoryChart, MonthChart } from "@/app/charts";
 import { FetchError } from "@/app/fetch-error";
 import { InsightsPanel, type Insights } from "@/app/insights";
@@ -63,6 +64,10 @@ export default function ChartsPage() {
       </div>
 
       <div className="lg:col-span-2">{insights === null ? <InsightsSkeleton /> : <InsightsPanel insights={insights} />}</div>
+
+      <div className="lg:col-span-2">
+        <BudgetsPanel />
+      </div>
     </section>
   );
 }

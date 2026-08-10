@@ -66,3 +66,10 @@ export type Insights = {
   categoryAlerts: CategoryAlert[];
   installmentPlans: InstallmentPlan[];
 };
+
+/** Ngân sách/tháng người dùng tự đặt cho một danh mục, kèm chi tiêu tháng hiện tại. */
+export type BudgetWithSpend = {
+  category: string;
+  monthlyLimit: number;
+  currentMonthSpend: number;
+};

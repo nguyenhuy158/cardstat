@@ -1,5 +1,6 @@
 import type { TransactionRepository } from "@/domain/ports/transaction-repository";
 import type {
+  BudgetWithSpend,
   CategoryTotal,
   ImportResult,
   MonthTotal,
@@ -221,5 +222,55 @@ export class D1TransactionRepository implements TransactionRepository {
       months: months.results,
       categories: categories.results,
     };
+  }
+
+  async getBudgetsWithSpend(month: string): Promise<BudgetWithSpend[]> {
+    // FULL OUTER JOIN không có trong SQLite/D1 nên gộp bằng UNION: danh mục
+    // có ngân sách nhưng chưa chi tháng này (spend = 0) và danh mục có chi
+    // tiêu nhưng chưa đặt ngân sách (monthly_limit = 0) đều phải xuất hiện.
+    const { results } = await this.db
+      .prepare(
+        `SELECT category, monthly_limit as monthlyLimit, currentMonthSpend FROM (
+           SELECT b.category as category, b.monthly_limit as monthly_limit,
+                  COALESCE((
+                    SELECT SUM(-t.amount) FROM cardstat_transactions t
+                    WHERE t.user_id = b.user_id AND t.category = b.category
+                      AND t.amount < 0 AND substr(t.date, 1, 7) = ?
+                  ), 0) as currentMonthSpend
+           FROM cardstat_budgets b
+           WHERE b.user_id = ?
+           UNION
+           SELECT t.category as category, 0 as monthly_limit,
+                  SUM(-t.amount) as currentMonthSpend
+           FROM cardstat_transactions t
+           WHERE t.user_id = ? AND t.amount < 0 AND substr(t.date, 1, 7) = ?
+             AND t.category NOT IN (SELECT category FROM cardstat_budgets WHERE user_id = ?)
+           GROUP BY t.category
+         )
+         ORDER BY monthlyLimit > 0 DESC, currentMonthSpend DESC`
+      )
+      .bind(month, this.userId, this.userId, month, this.userId)
+      .all<BudgetWithSpend>();
+    return results;
+  }
+
+  async setBudget(category: string, limit: number): Promise<void> {
+    if (limit <= 0) {
+      await this.db
+        .prepare("DELETE FROM cardstat_budgets WHERE user_id = ? AND category = ?")
+        .bind(this.userId, category)
+        .run();
+      return;
+    }
+
+    await this.db
+      .prepare(
+        `INSERT INTO cardstat_budgets (user_id, category, monthly_limit, updated_at)
+         VALUES (?, ?, ?, datetime('now'))
+         ON CONFLICT (user_id, category)
+         DO UPDATE SET monthly_limit = excluded.monthly_limit, updated_at = excluded.updated_at`
+      )
+      .bind(this.userId, category, limit)
+      .run();
   }
 }

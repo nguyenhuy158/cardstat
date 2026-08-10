@@ -1,4 +1,5 @@
 import type {
+  BudgetWithSpend,
   ImportResult,
   NewTransaction,
   Stats,
@@ -23,4 +24,9 @@ export interface TransactionRepository {
   listUploads(): Promise<Upload[]>;
   /** Xóa giao dịch của lần nhập rồi mới xóa dòng lịch sử, trong cùng một batch. */
   deleteUpload(id: number): Promise<DeleteUploadResult>;
+
+  /** `month` dạng "YYYY-MM". Trả về mọi danh mục có ngân sách HOẶC có chi tiêu trong tháng đó. */
+  getBudgetsWithSpend(month: string): Promise<BudgetWithSpend[]>;
+  /** `limit <= 0` xoá ngân sách của danh mục thay vì lưu số 0. */
+  setBudget(category: string, limit: number): Promise<void>;
 }
