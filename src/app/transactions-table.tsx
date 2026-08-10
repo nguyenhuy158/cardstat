@@ -12,10 +12,13 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
+import { useState } from "react";
+
 import { CategoryPicker } from "./category-picker";
 import { formatDate, formatDateTime, formatMonth } from "./format";
 import { PAGE_SIZE } from "./pagination";
 import { Select } from "./select";
+import { TransactionDetailModal } from "./transaction-detail-modal";
 
 export type Transaction = {
   id: number;
@@ -24,6 +27,7 @@ export type Transaction = {
   amount: number;
   category: string;
   created_at?: string;
+  source_file?: string | null;
 };
 
 /** Callback của trang, đi qua `options.meta` để columns dựng được ở module scope. */
@@ -209,6 +213,11 @@ export function TransactionsTable({
   categoryFilter: string;
   onCategoryFilterChange: (value: string) => void;
 }) {
+  // Giao dịch đang mở modal chi tiết — lưu cả object thay vì chỉ id để đóng
+  // xong vẫn còn dữ liệu render trong lúc modal fade-out (không dùng ở đây vì
+  // đóng là gỡ luôn, nhưng tránh phải tra cứu lại `data` mỗi lần render).
+  const [selected, setSelected] = useState<Transaction | null>(null);
+
   const table = useTable({
     features,
     columns,
@@ -310,7 +319,8 @@ export function TransactionsTable({
           return (
             <div
               key={row.id}
-              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+              onClick={() => setSelected(t)}
+              className="flex cursor-pointer items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
@@ -321,13 +331,16 @@ export function TransactionsTable({
                   {/* h-9 (36px): chưa đủ 44px như các nút khác trong repo, và đó
                       là đánh đổi có chủ ý — chip nằm giữa một dòng chữ nhỏ trong
                       thẻ, cao 44px sẽ đội cả thẻ lên. Vẫn hơn hẳn ~20px của chip
-                      đặc; nút xóa 44px bên phải vẫn là vùng chạm chính của thẻ. */}
-                  <CategoryPicker
-                    value={t.category}
-                    onChange={(category) => table.options.meta?.onCategoryChange(t.id, category)}
-                    disabled={table.options.meta?.pendingCategoryIds.has(t.id)}
-                    className="h-9 px-2.5"
-                  />
+                      đặc; nút xóa 44px bên phải vẫn là vùng chạm chính của thẻ.
+                      stopPropagation: chip mở dropdown riêng, không phải mở modal. */}
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <CategoryPicker
+                      value={t.category}
+                      onChange={(category) => table.options.meta?.onCategoryChange(t.id, category)}
+                      disabled={table.options.meta?.pendingCategoryIds.has(t.id)}
+                      className="h-9 px-2.5"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
@@ -341,7 +354,10 @@ export function TransactionsTable({
                   {formatVnd(t.amount)}
                 </span>
                 <button
-                  onClick={() => table.options.meta?.onDelete(t.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    table.options.meta?.onDelete(t.id);
+                  }}
                   aria-label="Xóa giao dịch"
                   className="flex h-10 w-10 items-center justify-center rounded-lg text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
                 >
@@ -393,10 +409,21 @@ export function TransactionsTable({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-b border-zinc-100 dark:border-zinc-800/50">
+              <tr
+                key={row.id}
+                onClick={() => setSelected(row.original)}
+                className="cursor-pointer border-b border-zinc-100 hover:bg-zinc-50 dark:border-zinc-800/50 dark:hover:bg-zinc-800/40"
+              >
                 {row.getAllCells().map((cell) => (
                   <td
                     key={cell.id}
+                    // Cột danh mục/xóa có control bấm riêng (dropdown, nút xóa) —
+                    // chặn bubble để click vào đó không mở luôn modal chi tiết.
+                    onClick={
+                      cell.column.id === "category" || cell.column.id === "actions"
+                        ? (e) => e.stopPropagation()
+                        : undefined
+                    }
                     className={`py-2 pr-3 ${
                       RIGHT_ALIGNED.has(cell.column.id) ? "text-right whitespace-nowrap" : ""
                     } ${cell.column.id === "date" ? "whitespace-nowrap" : ""}`}
@@ -441,6 +468,23 @@ export function TransactionsTable({
             </button>
           </div>
         </div>
+      )}
+
+      {selected && (
+        <TransactionDetailModal
+          transaction={selected}
+          onClose={() => setSelected(null)}
+          onCategoryChange={(id, category) => {
+            table.options.meta?.onCategoryChange(id, category);
+            // Cập nhật lạc quan luôn phần đang hiển thị trong modal — không thì
+            // chip trong modal đứng yên ở giá trị cũ cho tới khi `data` re-fetch
+            // xong và đẩy prop `selected` mới xuống (chưa xảy ra vì modal giữ
+            // state riêng, không tự ăn theo `rows` đổi).
+            setSelected((prev) => (prev && prev.id === id ? { ...prev, category } : prev));
+          }}
+          onDelete={(id) => table.options.meta?.onDelete(id)}
+          pendingCategory={table.options.meta?.pendingCategoryIds.has(selected.id) ?? false}
+        />
       )}
     </>
   );

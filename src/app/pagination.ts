@@ -8,4 +8,4 @@
  * cả TanStack Table + Radix Select, mà `layout.tsx` cũng import skeleton, nên
  * import thẳng sẽ nhét bảng vào bundle của mọi trang trong nhóm `(app)`.
  */
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = 10;
