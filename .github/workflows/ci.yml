@@ -91,6 +91,37 @@ jobs:
       - name: Build
         run: pnpm build
 
+  e2e:
+    name: E2E smoke (local worker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # playwright-core does not download a browser; install Chromium into
+      # ~/.cache/ms-playwright (e2e/chromium.mjs looks there).
+      - name: Install Chromium
+        run: pnpm dlx playwright@1.63.0 install --with-deps chromium
+
+      # `pnpm e2e` runs the OpenNext build, applies D1 migrations locally,
+      # starts a fake SSO JWKS + `wrangler dev`, runs e2e/ui-smoke.mjs and
+      # tears everything down. Writes only to the runner's local D1.
+      - name: E2E
+        run: pnpm e2e
+
+      - name: Upload failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure
+          path: e2e-failure.png
+          if-no-files-found: ignore
+
   migrations-check:
     name: Check for unapplied D1 migrations (production)
     needs: [checks]
@@ -246,3 +277,24 @@ jobs:
           fi
 
           echo "Smoke test finished: assertions passed."
+
+  # Browser-level, READ-ONLY production check (logged-out pages + 401s only,
+  # see e2e/ui-smoke.mjs part 1). Runs after smoke-test so it hits the new
+  # deploy once scripts/smoke.mjs has finished waiting for the rollout.
+  e2e-prod:
+    name: Post-deploy production E2E (read-only)
+    needs: [smoke-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm dlx playwright@1.63.0 install --with-deps chromium
+      - name: E2E against https://cardstats.huyab.click
+        run: pnpm e2e:prod

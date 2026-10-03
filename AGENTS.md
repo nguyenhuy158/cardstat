@@ -61,6 +61,13 @@ open-next.config.ts            # OpenNext Cloudflare adapter config
 - `pnpm upload <file>` / `pnpm stats` / `pnpm tx`: CLI helpers; need
   `HUYAB_SSO_COOKIE` (see README).
 - `node scripts/smoke.mjs [baseUrl]`: smoke test a deployment.
+- `pnpm e2e`: OpenNext build, apply D1 migrations locally, start a fake SSO
+  JWKS + `wrangler dev` (same worker as `pnpm preview`), then run the Chromium
+  smoke suite `e2e/ui-smoke.mjs` (playwright-core). Set
+  `PLAYWRIGHT_CHROMIUM_PATH` if no Chromium/Chrome is found.
+- `pnpm e2e:prod`: read-only browser smoke against
+  https://cardstats.huyab.click (GET `/`, `/login`, `/api/stats`,
+  `/api/transactions`, `/manifest.webmanifest`; no login, no writes).
 - `pnpm exec wrangler d1 migrations apply db --local|--remote`: apply D1
   migrations (production is never migrated automatically).
 
@@ -92,8 +99,10 @@ over raw palette classes for new code. Dark mode is the `.dark` class on
 ## Testing Guidelines
 
 There is no unit test suite yet. Verify changes with `pnpm check`,
-`pnpm lint` and `pnpm build`, and use `scripts/smoke.mjs` against a local or
-deployed instance. If tests are added, use Vitest with files colocated beside
+`pnpm lint`, `pnpm build` and `pnpm e2e` (CI runs the E2E job on every push
+and PR). The dev E2E signs its own SSO JWT against a fake JWKS (`SSO_ISSUER`
+is overridden with `wrangler dev --var`) and writes only to local D1;
+`pnpm e2e:prod` and `scripts/smoke.mjs` must stay read-only. If tests are added, use Vitest with files colocated beside
 the module, prioritizing `src/domain/services/` (statement parsing,
 categorization, insights).
 
