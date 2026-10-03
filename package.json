@@ -18,6 +18,7 @@
     "tx": "node scripts/list.mjs"
   },
   "dependencies": {
+    "@huyab/sso": "github:nguyenhuy158/kit#v0.1.0&path:packages/sso",
     "@radix-ui/react-select": "^2.3.7",
     "@tanstack/react-table": "^9.1.0",
     "date-fns": "^4.4.0",

@@ -1,12 +1,8 @@
+import { DEFAULT_SSO_ISSUER, SSO_COOKIE, type SsoClaims, verifySsoToken } from "@huyab/sso";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { cookies } from "next/headers";
 
-import { verifySsoToken, type SsoClaims } from "./sso-verifier";
-
-/** Cookie do SSO đặt cho mọi app *.huyab.click. */
-export const SSO_COOKIE = "huyab_sso";
-
-const DEFAULT_ISSUER = "https://auth.huyab.click";
+const SSO_COOKIE_PATTERN = new RegExp(`(?:^|;\\s*)${SSO_COOKIE}=([^;]+)`);
 
 /**
  * Issuer đọc từ biến `SSO_ISSUER` trong wrangler.jsonc. Không nằm trong
@@ -17,17 +13,10 @@ export async function ssoIssuer(): Promise<string> {
   if (process.env.SSO_ISSUER) return process.env.SSO_ISSUER;
   try {
     const { env } = await getCloudflareContext({ async: true });
-    return (env as CloudflareEnv & { SSO_ISSUER?: string }).SSO_ISSUER || DEFAULT_ISSUER;
+    return (env as CloudflareEnv & { SSO_ISSUER?: string }).SSO_ISSUER || DEFAULT_SSO_ISSUER;
   } catch {
-    return DEFAULT_ISSUER;
+    return DEFAULT_SSO_ISSUER;
   }
-}
-
-/** URL của SSO có kèm đường quay lại app này sau khi xong. */
-export async function ssoUrl(path: "/login" | "/logout", redirectTo: string): Promise<string> {
-  const target = new URL(`${await ssoIssuer()}${path}`);
-  target.searchParams.set("redirect_uri", redirectTo);
-  return target.toString();
 }
 
 /** Claims của người đang đăng nhập, hoặc `null`. Đọc cookie qua `next/headers`. */
@@ -37,11 +26,13 @@ export async function getSessionClaims(): Promise<SsoClaims | null> {
   return verifySsoToken(token, await ssoIssuer());
 }
 
-/** Như trên nhưng đọc cookie từ `Request` — dùng trong route handler. */
+/**
+ * Như trên nhưng đọc cookie từ `Request` — dùng trong route handler. Chỉ nhận
+ * cookie, không nhận `Authorization: Bearer` như `getClaimsFromRequest` của
+ * @huyab/sso.
+ */
 export async function getClaimsFromRequest(req: Request): Promise<SsoClaims | null> {
-  const token = req.headers
-    .get("Cookie")
-    ?.match(new RegExp(`(?:^|;\\s*)${SSO_COOKIE}=([^;]+)`))?.[1];
+  const token = req.headers.get("Cookie")?.match(SSO_COOKIE_PATTERN)?.[1];
   if (!token) return null;
   return verifySsoToken(token, await ssoIssuer());
 }
