@@ -35,8 +35,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
-    name: Typecheck, lint, build
+  # Reusable kit workflow: `pnpm install --frozen-lockfile`, `pnpm check`,
+  # `pnpm build`, then `pnpm e2e` in its own job.
+  #
+  # `pnpm check` runs `next typegen` before `tsc --noEmit`: tsconfig.json
+  # includes ".next/types/**/*.ts" and ".next/dev/types/**/*.ts", and
+  # next-env.d.ts (gitignored) imports "./.next/dev/types/routes.d.ts"
+  # directly — none of that exists in a fresh checkout. `next typegen`
+  # generates those route/layout/next-env types without running a full
+  # build (see
+  # node_modules/next/dist/docs/01-app/03-api-reference/05-config/02-typescript.md,
+  # "Route-Aware Type Helpers" / "next-env.d.ts" sections).
+  #
+  # `pnpm e2e` runs the OpenNext build, applies D1 migrations locally,
+  # starts a fake SSO JWKS + `wrangler dev`, runs e2e/ui-smoke.mjs and
+  # tears everything down. Writes only to the runner's local D1.
+  check:
+    uses: nguyenhuy158/kit/.github/workflows/check.yml@v0.1.0
+    with:
+      run-build: true
+      run-e2e: true
+
+  lint:
+    name: Lint (report-only)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,17 +74,6 @@ jobs:
 
       - name: Install dependencies (frozen lockfile)
         run: pnpm install --frozen-lockfile
-
-      # `pnpm check` runs `next typegen` before `tsc --noEmit`: tsconfig.json
-      # includes ".next/types/**/*.ts" and ".next/dev/types/**/*.ts", and
-      # next-env.d.ts (gitignored) imports "./.next/dev/types/routes.d.ts"
-      # directly — none of that exists in a fresh checkout. `next typegen`
-      # generates those route/layout/next-env types without running a full
-      # build (see
-      # node_modules/next/dist/docs/01-app/03-api-reference/05-config/02-typescript.md,
-      # "Route-Aware Type Helpers" / "next-env.d.ts" sections).
-      - name: Typecheck
-        run: pnpm check
 
       # Lint is intentionally NON-BLOCKING for now (continue-on-error).
       #
@@ -88,43 +98,9 @@ jobs:
         run: pnpm lint
         continue-on-error: true
 
-      - name: Build
-        run: pnpm build
-
-  e2e:
-    name: E2E smoke (local worker)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-
-      # playwright-core does not download a browser; install Chromium into
-      # ~/.cache/ms-playwright (e2e/chromium.mjs looks there).
-      - name: Install Chromium
-        run: pnpm dlx playwright@1.63.0 install --with-deps chromium
-
-      # `pnpm e2e` runs the OpenNext build, applies D1 migrations locally,
-      # starts a fake SSO JWKS + `wrangler dev`, runs e2e/ui-smoke.mjs and
-      # tears everything down. Writes only to the runner's local D1.
-      - name: E2E
-        run: pnpm e2e
-
-      - name: Upload failure screenshot
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-failure
-          path: e2e-failure.png
-          if-no-files-found: ignore
-
   migrations-check:
     name: Check for unapplied D1 migrations (production)
-    needs: [checks]
+    needs: [check]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -197,7 +173,7 @@ jobs:
 
   smoke-test:
     name: Post-deploy production smoke test
-    needs: [checks]
+    needs: [check]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
