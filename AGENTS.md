@@ -30,7 +30,7 @@ src/
     services/                  #   Statement text parser, categorize, insights
   application/use-cases/       # One file per use case (import, list, stats, budgets...)
   infrastructure/
-    auth/                      #   SSO JWT verify, session -> user id, requireUser()
+    auth/                      #   SSO session (@huyab/sso) -> user id, requireUser()
     parsing/                   #   PDF text extraction (unpdf)
     persistence/               #   D1 repository + getRepository()
   app/                         # Next.js App Router
@@ -100,9 +100,9 @@ over raw palette classes for new code. Dark mode is the `.dark` class on
 
 There is no unit test suite yet. Verify changes with `pnpm check`,
 `pnpm lint`, `pnpm build` and `pnpm e2e` (CI runs the E2E job on every push
-and PR). The dev E2E signs its own SSO JWT against a fake JWKS (`SSO_ISSUER`
-is overridden with `wrangler dev --var`) and writes only to local D1;
-`pnpm e2e:prod` and `scripts/smoke.mjs` must stay read-only. If tests are added, use Vitest with files colocated beside
+and PR). The dev E2E signs its own SSO JWT with `startSsoMock` from
+`@huyab/e2e` (`SSO_ISSUER` is overridden with `wrangler dev --var`) and writes
+only to local D1; `pnpm e2e:prod` and `scripts/smoke.mjs` must stay read-only. If tests are added, use Vitest with files colocated beside
 the module, prioritizing `src/domain/services/` (statement parsing,
 categorization, insights).
 
@@ -112,6 +112,21 @@ Use concise Conventional Commits, for example `feat: add budget alerts` or
 `fix: parse negative amounts in statements`. Pull requests should include a
 short summary, check/lint/build results, and screenshots for visible UI
 changes. Remember to apply new D1 migrations to production by hand.
+
+## Ecosystem
+
+See the [huyab.click ecosystem map](https://github.com/nguyenhuy158/kit/blob/main/docs/ECOSYSTEM.md) for how all personal repos connect.
+
+- Kit packages: `@huyab/sso` (`verifySsoToken`, `ssoUrl`, `SSO_COOKIE`,
+  `DEFAULT_SSO_ISSUER` in `src/infrastructure/auth/session.ts`; cookie only,
+  no Bearer; `transpilePackages` in `next.config.ts`), `@huyab/e2e`
+  (`startServer`, `run`, `startSsoMock`, `findChromium`, `assert`,
+  `assertLocalOnly` in `e2e/`), `@huyab/config` (tsconfig base only; linting
+  stays on ESLint), reusable CI
+  `nguyenhuy158/kit/.github/workflows/check.yml@v0.1.0`.
+- Talks to: sso (JWKS at `auth.huyab.click`, login/logout redirects), shared
+  D1 `db` (`cardstat_` prefix plus the unprefixed `user` table). No other app
+  calls it; mytools pings it from its `/projects` page.
 
 ## Agent-Specific Instructions
 
