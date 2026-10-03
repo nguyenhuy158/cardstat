@@ -29,6 +29,7 @@
     "unpdf": "^1.8.0"
   },
   "devDependencies": {
+    "@huyab/config": "github:nguyenhuy158/kit#v0.1.0&path:packages/config",
     "@huyab/e2e": "github:nguyenhuy158/kit#v0.1.0&path:packages/e2e",
     "@opennextjs/cloudflare": "^1.20.2",
     "@tailwindcss/postcss": "^4",
