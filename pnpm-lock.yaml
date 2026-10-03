@@ -36,6 +36,9 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
     devDependencies:
+      '@huyab/e2e':
+        specifier: github:nguyenhuy158/kit#v0.1.0&path:packages/e2e
+        version: https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51#path:packages/e2e
       '@opennextjs/cloudflare':
         specifier: ^1.20.2
         version: 1.20.2(next@16.3.0(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@26.2.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@7.2.0)(wrangler@4.146.0(@types/node@26.2.0))
@@ -837,6 +840,11 @@ packages:
   '@humanwhocodes/retry@0.4.3':
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
+
+  '@huyab/e2e@https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51#path:packages/e2e':
+    resolution: {gitHosted: true, path: packages/e2e, tarball: https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51}
+    version: 0.1.0
+    engines: {node: '>=22'}
 
   '@huyab/sso@https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51#path:packages/sso':
     resolution: {gitHosted: true, path: packages/sso, tarball: https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51}
@@ -5136,6 +5144,8 @@ snapshots:
   '@humanwhocodes/module-importer@1.0.1': {}
 
   '@humanwhocodes/retry@0.4.3': {}
+
+  '@huyab/e2e@https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51#path:packages/e2e': {}
 
   '@huyab/sso@https://codeload.github.com/nguyenhuy158/kit/tar.gz/dc6d7122964975a8283a12876dafa9ad8cff2c51#path:packages/sso': {}
 

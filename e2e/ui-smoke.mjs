@@ -12,22 +12,19 @@
 // `pnpm e2e:prod` = chi phan 1 tren https://cardstats.huyab.click.
 //
 // Bien moi truong:
-// - E2E_BASE_URL: mac dinh http://127.0.0.1:8817
+// - E2E_BASE_URL: mac dinh http://127.0.0.1:8787 (BASE cua @huyab/e2e)
 // - E2E_SSO_TOKEN: do e2e/run.mjs truyen vao
-// - PLAYWRIGHT_CHROMIUM_PATH: xem e2e/chromium.mjs
+// - PLAYWRIGHT_CHROMIUM_PATH: xem findChromium cua @huyab/e2e
+import { assert, assertLocalOnly, BASE, findChromium } from "@huyab/e2e";
 import { chromium } from "playwright-core";
-import { findChromium } from "./chromium.mjs";
 
-const BASE = process.env.E2E_BASE_URL || "http://127.0.0.1:8817";
 const SSO_TOKEN = process.env.E2E_SSO_TOKEN;
 const WAIT = { timeout: 20000 };
-const IS_LOCAL = ["127.0.0.1", "localhost"].includes(new URL(BASE).hostname);
 // Nguyen van tu src/app/login/page.tsx (giong scripts/smoke.mjs).
 const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.click";
 
-if (SSO_TOKEN && !IS_LOCAL) {
-  throw new Error("E2E_SSO_TOKEN chi dung cho server local; e2e:prod phai chi doc");
-}
+// Phan 2 ghi D1: token chi duoc dung voi server local, e2e:prod phai chi doc.
+if (SSO_TOKEN) assertLocalOnly();
 
 let passed = 0;
 let failed = 0;
@@ -35,10 +32,6 @@ let failed = 0;
 function ok(name) {
   passed += 1;
   console.log(`PASS ${name}`);
-}
-
-function expect(condition, message) {
-  if (!condition) throw new Error(message);
 }
 
 const browser = await chromium.launch({ executablePath: findChromium() });
@@ -59,14 +52,14 @@ try {
   ok("logged-out / redirects to the SSO login page");
 
   const stats = await page.request.get(BASE + "/api/stats");
-  expect(stats.status() === 401, `/api/stats phai 401, got ${stats.status()}`);
+  assert(stats.status() === 401, `/api/stats phai 401, got ${stats.status()}`);
   const transactions = await page.request.get(BASE + "/api/transactions");
-  expect(transactions.status() === 401, `/api/transactions phai 401, got ${transactions.status()}`);
+  assert(transactions.status() === 401, `/api/transactions phai 401, got ${transactions.status()}`);
   ok("API rejects anonymous requests");
 
   const manifest = await page.request.get(BASE + "/manifest.webmanifest");
-  expect(manifest.ok(), `GET /manifest.webmanifest tra ${manifest.status()}`);
-  expect((await manifest.json()).short_name === "Cardstat", "manifest phai co short_name Cardstat");
+  assert(manifest.ok(), `GET /manifest.webmanifest tra ${manifest.status()}`);
+  assert((await manifest.json()).short_name === "Cardstat", "manifest phai co short_name Cardstat");
   ok("web manifest is served");
 
   // ---- Phan 2: chi local, co ghi D1 local ----
@@ -86,7 +79,7 @@ try {
         }).then((response) => response.status),
       { date: today, description, amount: -123456, category: "Ăn uống" },
     );
-    expect(created === 200, `tao giao dich phai 200, got ${created}`);
+    assert(created === 200, `tao giao dich phai 200, got ${created}`);
     ok("SSO cookie logs in and API accepts writes");
 
     await page.reload();
@@ -106,7 +99,7 @@ try {
     await row.getByRole("button", { name: "Xóa", exact: true }).click();
     await row.waitFor({ state: "detached", ...WAIT });
     const remaining = await page.evaluate(() => fetch("/api/transactions").then((response) => response.json()));
-    expect(
+    assert(
       !remaining.some((transaction) => transaction.description === description),
       "giao dich da xoa van con trong /api/transactions",
     );
@@ -114,7 +107,7 @@ try {
 
   }
 
-  expect(pageErrors.length === 0, `co ${pageErrors.length} loi JS tren trang`);
+  assert(pageErrors.length === 0, `co ${pageErrors.length} loi JS tren trang`);
   ok("no uncaught page errors");
 } catch (error) {
   failed += 1;
