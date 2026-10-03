@@ -56,3 +56,11 @@ next-env.d.ts
 
 # bank statements dropped in for local testing (personal financial data)
 *.pdf
+
+# build output / package store
+/dist
+.pnpm-store/
+
+# stray tool template dirs
+{{pkgetc}}/
+{{HOMEBREW_PREFIX}}/
