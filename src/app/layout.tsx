@@ -46,12 +46,23 @@ export const viewport: Viewport = {
   ],
 };
 
+// Dark mode theo class .dark trên <html> (giống ui-kit), vẫn bám theo
+// prefers-color-scheme của hệ điều hành. Chạy inline trong <head> để class có
+// trước lần paint đầu, không nháy sáng; nghe "change" để đổi theme ngay khi hệ
+// điều hành đổi.
+const DARK_CLASS_SCRIPT = `(()=>{const m=matchMedia("(prefers-color-scheme: dark)");const s=()=>document.documentElement.classList.toggle("dark",m.matches);s();m.addEventListener("change",s)})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="vi"
       className={`${beVietnamPro.variable} ${plusJakartaSans.variable} h-full antialiased`}
+      // Script ở <head> thêm class .dark trước khi React hydrate.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: DARK_CLASS_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
         <ServiceWorkerRegister />

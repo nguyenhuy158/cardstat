@@ -125,13 +125,13 @@ export default function TransactionsPage() {
     // truyền xuống một chiều cao xác định) để bên trong TransactionsTable có thể
     // ghim thanh lọc + phân trang đứng yên, chỉ phần danh sách dòng cuộn — không
     // thì bảng nhiều dòng sẽ đẩy cả trang cuộn dài, có khi che mất nút chuyển trang.
-    <section className="flex h-full flex-col rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <section className="flex h-full flex-col rounded-xl border border-border bg-surface p-4 sm:p-5">
       <h2 className="mb-4 shrink-0 font-semibold">Danh sách giao dịch</h2>
 
       {updateError && (
         <p
           role="alert"
-          className="mb-3 shrink-0 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+          className="mb-3 shrink-0 rounded-lg border border-red-200 bg-danger-soft px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:text-red-300"
         >
           {updateError}
         </p>

@@ -1,0 +1,118 @@
+/* ===========================================================================
+   ui-kit design tokens: nguon chuan cho moi project ca nhan dung React +
+   Tailwind v4. Project khac COPY file nay va import no thay cho
+   `@import "tailwindcss"` trong file CSS goc.
+
+   Hop dong:
+   - Ten bien `--ui-*` va ten utility trong `@theme inline` la co dinh. Them /
+     doi ten / xoa token thi sua o day truoc roi dong bo sang cac app.
+   - Project chi duoc doi GIA TRI trong `:root` (sang) va `.dark` (toi), vi du
+     hue thuong hieu. Dark mode theo class `.dark` tren <html>.
+   - Component chi dung class ngu nghia (bg-surface, text-fg-muted,
+     bg-primary...), khong hardcode mau palette (violet-600, stone-200...).
+=========================================================================== */
+
+@import "tailwindcss";
+
+/* Design tokens theo cau truc cua ui-kit (src/styles/tokens.css): cung ten
+   bien --ui-*, cung class .dark, cung bang map @theme inline. Gia tri mau la
+   cua rieng cardstat (co chu dich): nen trung tinh zinc, nut chinh den/trang
+   nhu nav dang chon, xanh duong chi dung cho vong focus. Moi mau lay dung gia
+   tri oklch cua palette Tailwind v4 dang dung trong component nen doi class
+   zinc-* sang token khong lam doi mau nhin thay.
+   Phan base (body, focus, reduced-motion...) nam o app/globals.css vi cardstat
+   co lua chon rieng (cho phep pinch-zoom, giu co chu control theo utility). */
+
+/* Dark theo class .dark tren <html>; script trong app/layout.tsx dat class nay
+   theo prefers-color-scheme cua he dieu hanh. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* May co chuot that. */
+@custom-variant pointer-fine (@media (hover: hover) and (pointer: fine));
+
+/* ---------------------------------------------------------------------------
+   1. Bien mau.
+--------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* Nen va chu */
+  --ui-bg: #ffffff;
+  --ui-surface: oklch(100% 0 0); /* white */
+  --ui-surface-muted: oklch(98.5% 0 0); /* zinc-50 */
+  --ui-border: oklch(92% 0.004 286.32); /* zinc-200 */
+  --ui-fg: #171717;
+  --ui-fg-muted: oklch(55.2% 0.016 285.938); /* zinc-500, dat AA tren nen trang */
+
+  /* Mau chinh: trung tinh, giong nav dang chon */
+  --ui-primary: oklch(21% 0.006 285.885); /* zinc-900 */
+  --ui-primary-hover: oklch(27.4% 0.006 286.033); /* zinc-800 */
+  --ui-primary-fg: oklch(98.5% 0 0); /* zinc-50 */
+  --ui-primary-soft: oklch(96.7% 0.001 286.375); /* zinc-100 */
+
+  /* Mau trang thai */
+  --ui-success: oklch(52.7% 0.154 150.069); /* green-700 (thu nhap) */
+  --ui-success-soft: oklch(98.2% 0.018 155.826); /* green-50 */
+  --ui-warning: oklch(66.6% 0.179 58.318); /* amber-600 */
+  --ui-warning-soft: oklch(98.7% 0.022 95.277); /* amber-50 */
+  --ui-danger: oklch(57.7% 0.245 27.325); /* red-600 (chi tieu, loi) */
+  --ui-danger-soft: oklch(97.1% 0.013 17.38); /* red-50 */
+
+  --ui-ring: #2563eb; /* vong focus */
+  --ui-radius: 0.75rem; /* rounded-xl cua the/card */
+}
+
+.dark {
+  color-scheme: dark;
+
+  --ui-bg: #0a0a0a;
+  --ui-surface: oklch(21% 0.006 285.885); /* zinc-900 */
+  --ui-surface-muted: oklch(14.1% 0.005 285.823); /* zinc-950 */
+  --ui-border: oklch(27.4% 0.006 286.033); /* zinc-800 */
+  --ui-fg: #ededed;
+  --ui-fg-muted: oklch(70.5% 0.015 286.067); /* zinc-400, dat AA tren zinc-900 */
+
+  --ui-primary: oklch(96.7% 0.001 286.375); /* zinc-100 */
+  --ui-primary-hover: oklch(92% 0.004 286.32); /* zinc-200 */
+  --ui-primary-fg: oklch(21% 0.006 285.885); /* zinc-900 */
+  --ui-primary-soft: oklch(27.4% 0.006 286.033); /* zinc-800 */
+
+  --ui-success: oklch(79.2% 0.209 151.711); /* green-400 */
+  --ui-success-soft: oklch(26.6% 0.065 152.934); /* green-950 */
+  --ui-warning: oklch(82.8% 0.189 84.429); /* amber-400 */
+  --ui-warning-soft: oklch(27.9% 0.077 45.635); /* amber-950 */
+  --ui-danger: oklch(70.4% 0.191 22.216); /* red-400 */
+  --ui-danger-soft: oklch(25.8% 0.092 26.042); /* red-950 */
+
+  --ui-ring: #60a5fa;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Dang ky bien thanh utility cua Tailwind: bg-surface, text-fg-muted,
+   border-border, ring-ring, rounded-ui...
+   `inline` de Tailwind tra thang var(--ui-*) vao class, nho vay .dark doi mau
+   ma khong can sinh lai utility.
+--------------------------------------------------------------------------- */
+@theme inline {
+  --color-bg: var(--ui-bg);
+  --color-surface: var(--ui-surface);
+  --color-surface-muted: var(--ui-surface-muted);
+  --color-border: var(--ui-border);
+  --color-fg: var(--ui-fg);
+  --color-fg-muted: var(--ui-fg-muted);
+
+  --color-primary: var(--ui-primary);
+  --color-primary-hover: var(--ui-primary-hover);
+  --color-primary-fg: var(--ui-primary-fg);
+  --color-primary-soft: var(--ui-primary-soft);
+
+  --color-success: var(--ui-success);
+  --color-success-soft: var(--ui-success-soft);
+  --color-warning: var(--ui-warning);
+  --color-warning-soft: var(--ui-warning-soft);
+  --color-danger: var(--ui-danger);
+  --color-danger-soft: var(--ui-danger-soft);
+
+  --color-ring: var(--ui-ring);
+  --radius-ui: var(--ui-radius);
+}

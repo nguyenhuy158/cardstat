@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
         Không tìm thấy trang
       </h1>
-      <p className="max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="max-w-sm text-sm text-fg-muted">
         Đường dẫn này không tồn tại hoặc đã bị xóa.
       </p>
       <Link

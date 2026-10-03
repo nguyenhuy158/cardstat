@@ -19,7 +19,7 @@ export default function GlobalError({
       <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
         Có lỗi xảy ra
       </h1>
-      <p className="max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="max-w-sm text-sm text-fg-muted">
         Đã có sự cố ngoài dự kiến. Thử tải lại trang.
       </p>
       <button

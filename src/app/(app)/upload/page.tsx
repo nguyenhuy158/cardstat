@@ -65,7 +65,7 @@ export default function UploadPage() {
   const uploadCard = (
     <section
       aria-busy={uploading}
-      className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
+      className="rounded-xl border border-border bg-surface p-4 sm:p-5"
     >
       <h2 className="mb-3 font-semibold">Nhập sao kê (PDF)</h2>
       <label
@@ -95,7 +95,7 @@ export default function UploadPage() {
           {message}
         </p>
       )}
-      <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mt-3 text-xs text-fg-muted">
         Hỗ trợ file PDF sao kê ngân hàng/thẻ tín dụng. Hệ thống tự dò từng dòng có ngày và số tiền để nhận diện giao dịch.
       </p>
     </section>
@@ -104,7 +104,7 @@ export default function UploadPage() {
   return (
     <div className="space-y-4">
       {uploadCard}
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-3 font-semibold">Lịch sử nhập</h2>
         <UploadHistory
           refreshKey={historyKey}

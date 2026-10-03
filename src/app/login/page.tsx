@@ -39,10 +39,10 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-zinc-50 px-4 py-6 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <div className="w-full max-w-sm rounded-xl border border-zinc-200 bg-white p-6 text-center sm:p-7 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex min-h-dvh items-center justify-center bg-surface-muted px-4 py-6 text-zinc-900 dark:text-zinc-100">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 text-center sm:p-7">
         <h1 className="text-lg font-bold sm:text-xl">Thống kê chi tiêu thẻ tín dụng</h1>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-2 text-sm text-fg-muted">
           Đăng nhập bằng tài khoản huyab.click
         </p>
 

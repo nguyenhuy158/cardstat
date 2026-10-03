@@ -48,7 +48,7 @@ export function TransactionDetailModal({
         aria-modal="true"
         aria-label="Chi tiết giao dịch"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-t-2xl border border-zinc-200 bg-white p-5 shadow-xl sm:rounded-2xl dark:border-zinc-800 dark:bg-zinc-900"
+        className="w-full max-w-md rounded-t-2xl border border-border bg-surface p-5 shadow-xl sm:rounded-2xl"
       >
         <div className="mb-4 flex items-start justify-between gap-3">
           <h2 className="text-base font-semibold">Chi tiết giao dịch</h2>
@@ -56,7 +56,7 @@ export function TransactionDetailModal({
             type="button"
             onClick={onClose}
             aria-label="Đóng"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-fg-muted hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
             ✕
           </button>
@@ -67,7 +67,7 @@ export function TransactionDetailModal({
         </p>
         <p
           className={`mb-4 text-2xl font-bold ${
-            transaction.amount < 0 ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"
+            transaction.amount < 0 ? "text-danger" : "text-success"
           }`}
         >
           {formatVnd(transaction.amount)}
@@ -75,13 +75,13 @@ export function TransactionDetailModal({
 
         <dl className="space-y-2.5 text-sm">
           <div className="flex items-center justify-between gap-3">
-            <dt className="text-zinc-500 dark:text-zinc-400">Ngày</dt>
+            <dt className="text-fg-muted">Ngày</dt>
             <dd className="text-right" title={transaction.created_at ? `Nhập lúc ${formatDateTime(transaction.created_at)}` : undefined}>
               {formatDate(transaction.date)}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-3">
-            <dt className="text-zinc-500 dark:text-zinc-400">Danh mục</dt>
+            <dt className="text-fg-muted">Danh mục</dt>
             <dd>
               <CategoryPicker
                 value={transaction.category}
@@ -92,7 +92,7 @@ export function TransactionDetailModal({
           </div>
           {transaction.source_file && (
             <div className="flex items-center justify-between gap-3">
-              <dt className="shrink-0 text-zinc-500 dark:text-zinc-400">Nguồn</dt>
+              <dt className="shrink-0 text-fg-muted">Nguồn</dt>
               <dd className="truncate text-right" title={transaction.source_file}>
                 {transaction.source_file}
               </dd>
@@ -106,7 +106,7 @@ export function TransactionDetailModal({
             onDelete(transaction.id);
             onClose();
           }}
-          className="mt-5 flex h-11 w-full items-center justify-center rounded-lg border border-red-200 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+          className="mt-5 flex h-11 w-full items-center justify-center rounded-lg border border-red-200 text-sm font-medium text-danger transition hover:bg-danger-soft dark:border-red-900"
         >
           Xóa giao dịch
         </button>

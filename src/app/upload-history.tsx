@@ -99,7 +99,7 @@ export function UploadHistory({
 
   if (uploads.length === 0) {
     return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="text-sm text-fg-muted">
         Chưa nhập file nào. Sau khi nhập, mỗi lần sẽ hiện ở đây kèm thời điểm nhập.
       </p>
     );
@@ -110,7 +110,7 @@ export function UploadHistory({
       {deleteError && (
         <p
           role="alert"
-          className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+          className="mb-3 rounded-lg border border-red-200 bg-danger-soft px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:text-red-300"
         >
           {deleteError}
         </p>
@@ -120,13 +120,13 @@ export function UploadHistory({
         {uploads.map((upload) => (
           <li
             key={upload.id}
-            className="flex items-center gap-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-800"
+            className="flex items-center gap-3 rounded-xl border border-border p-3"
           >
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
                 {upload.filename}
               </p>
-              <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="mt-0.5 text-xs text-fg-muted">
                 {formatDateTime(upload.uploaded_at)} · {upload.transaction_count} giao dịch
                 {upload.skipped_count > 0 && ` · bỏ qua ${upload.skipped_count} dòng trùng`}
               </p>
@@ -161,7 +161,7 @@ export function UploadHistory({
                 // Nhãn nói rõ xóa bao nhiêu giao dịch: người dùng nhớ tên file,
                 // không nhớ file đó kéo theo bao nhiêu dòng.
                 aria-label={`Xóa lần nhập ${upload.filename} và ${upload.transaction_count} giao dịch của nó`}
-                className="h-11 shrink-0 rounded-lg border border-zinc-300 px-3 text-sm text-red-700 transition hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-600/50 focus-visible:outline-none sm:h-10 dark:border-zinc-700 dark:text-red-400 dark:hover:bg-red-950"
+                className="h-11 shrink-0 rounded-lg border border-zinc-300 px-3 text-sm text-red-700 transition hover:bg-danger-soft focus-visible:ring-2 focus-visible:ring-red-600/50 focus-visible:outline-none sm:h-10 dark:border-zinc-700 dark:text-red-400"
               >
                 Xóa
               </button>
@@ -173,7 +173,7 @@ export function UploadHistory({
       {/* Nhập lại đúng sao kê cũ bị bỏ qua vì trùng, nên các dòng chồng lấn vẫn
           thuộc lần nhập đầu tiên — nói trước để không ai bất ngờ khi xóa lần
           nhập cũ mà mất cả giao dịch tưởng là của lần nhập sau. */}
-      <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mt-3 text-xs text-fg-muted">
         Giao dịch trùng giữa hai lần nhập được tính cho lần nhập đầu tiên, nên xóa lần nhập cũ
         sẽ xóa luôn những giao dịch đó.
       </p>

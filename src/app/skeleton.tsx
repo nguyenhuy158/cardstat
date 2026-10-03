@@ -46,7 +46,7 @@ export function OverviewSkeleton() {
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className={`rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900 ${
+            className={`rounded-xl border border-border bg-surface p-3 sm:p-5 ${
               i === 2 ? "col-span-2 sm:col-span-1" : ""
             }`}
           >
@@ -58,14 +58,14 @@ export function OverviewSkeleton() {
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+          <div key={i} className="rounded-xl border border-border bg-surface p-3 sm:p-5">
             <Block className="h-3 w-16 sm:h-4 sm:w-20" />
             <Block className="mt-2 h-5 w-20 sm:h-6 sm:w-24" />
           </div>
         ))}
       </section>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <Block className="h-3 w-40" />
         <div className="mt-3 flex items-center justify-between">
           <Block className="h-6 w-24 rounded-full" />
@@ -73,7 +73,7 @@ export function OverviewSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <Block className="mb-3 h-3 w-32" />
         {[0, 1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center justify-between gap-3 py-2">
@@ -97,11 +97,11 @@ export function ChartsSkeleton() {
   return (
     <section aria-busy="true" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <LoadingStatus />
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-4 font-semibold">Chi tiêu theo danh mục</h2>
         <Block className="h-72 w-full sm:h-64" />
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-4 font-semibold">Chi tiêu và thu theo tháng</h2>
         <Block className="h-56 w-full sm:h-64" />
       </div>
@@ -114,15 +114,15 @@ export function InsightsSkeleton() {
   return (
     <section aria-busy="true" className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <LoadingStatus />
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <Block className="h-4 w-40" />
         <Block className="mt-2 h-7 w-32" />
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <Block className="h-4 w-32" />
         <Block className="mt-3 h-16 w-full" />
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <Block className="h-4 w-36" />
         <Block className="mt-3 h-16 w-full" />
       </div>
@@ -165,7 +165,7 @@ export function TransactionsSkeleton() {
         {rows.map((_, i) => (
           <div
             key={i}
-            className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+            className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3"
           >
             <div className="min-w-0 flex-1">
               <Block className="h-4 w-3/4" />
@@ -182,7 +182,7 @@ export function TransactionsSkeleton() {
       <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-200 dark:border-zinc-800">
+            <tr className="border-b border-border">
               {["Ngày", "Mô tả", "Danh mục", "Số tiền", ""].map((label, i) => (
                 <th key={label || i} className="py-2 pr-3">
                   <Block className="h-3 w-12" />

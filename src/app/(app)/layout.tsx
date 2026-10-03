@@ -40,17 +40,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const userLabel = claims.name || claims.email;
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+    <div className="flex h-dvh overflow-hidden bg-surface-muted text-zinc-900 dark:text-zinc-100">
       <DesktopNav userLabel={userLabel} />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header chỉ còn cho mobile: sidebar đã đảm nhiệm nav + tên người dùng +
             đăng xuất từ `sm` trở lên. */}
-        <header className="shrink-0 border-b border-zinc-200 bg-zinc-50/95 backdrop-blur-sm sm:hidden dark:border-zinc-800 dark:bg-zinc-950/95">
+        <header className="shrink-0 border-b border-border bg-zinc-50/95 backdrop-blur-sm sm:hidden dark:bg-zinc-950/95">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <h1 className="min-w-0 truncate text-base font-bold">Thống kê chi tiêu thẻ tín dụng</h1>
             <div className="flex min-w-0 shrink-0 items-center gap-2 text-sm">
-              <span className="max-w-[6rem] truncate text-zinc-500 dark:text-zinc-400">{userLabel}</span>
+              <span className="max-w-[6rem] truncate text-fg-muted">{userLabel}</span>
               {/* Thẻ <a> chứ không phải <button>: đăng xuất là điều hướng sang SSO
                   (chỉ nó xoá được cookie của cả domain), không phải gọi API. */}
               <a

@@ -21,10 +21,10 @@ export function DesktopNav({ userLabel }: { userLabel: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-zinc-200 bg-white sm:flex dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="border-b border-zinc-200 px-4 py-4 dark:border-zinc-800">
+    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-border bg-surface sm:flex">
+      <div className="border-b border-border px-4 py-4">
         <p className="text-base font-bold">Cardstat</p>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">Thống kê chi tiêu thẻ</p>
+        <p className="text-xs text-fg-muted">Thống kê chi tiêu thẻ</p>
       </div>
 
       <nav aria-label="Điều hướng chính" className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
@@ -38,8 +38,8 @@ export function DesktopNav({ userLabel }: { userLabel: string }) {
               aria-current={isActive ? "true" : undefined}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
                 isActive
-                  ? "bg-zinc-900 font-semibold text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900"
-                  : "font-medium text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                  ? "bg-primary font-semibold text-primary-fg"
+                  : "font-medium text-fg-muted hover:bg-zinc-100 dark:hover:bg-zinc-800"
               }`}
             >
               <Icon />
@@ -49,8 +49,8 @@ export function DesktopNav({ userLabel }: { userLabel: string }) {
         })}
       </nav>
 
-      <div className="border-t border-zinc-200 p-3 dark:border-zinc-800">
-        <p className="mb-2 truncate text-sm text-zinc-500 dark:text-zinc-400">{userLabel}</p>
+      <div className="border-t border-border p-3">
+        <p className="mb-2 truncate text-sm text-fg-muted">{userLabel}</p>
         {/* Thẻ <a>: đăng xuất là điều hướng sang SSO, không phải gọi API. */}
         <a
           href="/api/auth/logout"

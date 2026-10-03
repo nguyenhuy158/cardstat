@@ -64,7 +64,7 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="rounded-lg border border-zinc-200 bg-surface px-3 py-2 text-xs shadow-lg dark:border-zinc-700">
       <div className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
         {label && formatLabel ? formatLabel(label) : label}
       </div>
@@ -92,7 +92,7 @@ export function CategoryChart({ data }: { data: { category: string; total: numbe
   const marginRight = isCompact ? 16 : 56;
 
   return (
-    <div className="h-72 w-full text-zinc-500 sm:h-64 dark:text-zinc-400">
+    <div className="h-72 w-full text-fg-muted sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={rows} layout="vertical" margin={{ top: 4, right: marginRight, bottom: 4, left: 4 }}>
           <CartesianGrid horizontal={false} stroke={AXIS} strokeOpacity={0.15} />
@@ -140,7 +140,7 @@ export function MonthChart({ data }: { data: { month: string; spend: number; inc
   const tickInterval = isCompact && data.length > 6 ? Math.ceil(data.length / 4) - 1 : "preserveEnd";
 
   return (
-    <div className="h-56 w-full text-zinc-500 sm:h-64 dark:text-zinc-400">
+    <div className="h-56 w-full text-fg-muted sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 4, right: 8, bottom: 4, left: 4 }} barGap={2}>
           <CartesianGrid vertical={false} stroke={AXIS} strokeOpacity={0.15} />

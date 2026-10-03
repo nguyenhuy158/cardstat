@@ -103,7 +103,7 @@ const columns = helper.columns([
       return (
         <span
           className={
-            amount < 0 ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"
+            amount < 0 ? "text-danger" : "text-success"
           }
         >
           {formatVnd(amount)}
@@ -118,7 +118,7 @@ const columns = helper.columns([
     cell: (info) => (
       <button
         onClick={() => info.table.options.meta?.onDelete(info.row.original.id)}
-        className="text-xs text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400"
+        className="text-xs text-fg-muted hover:text-danger"
       >
         Xóa
       </button>
@@ -160,7 +160,7 @@ function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
   // Cùng mức tương phản AA với nhãn cột: hình mũi tên đã phân biệt trạng thái
   // ("↕" chưa sắp xếp vs "↑"/"↓"), nên không cần làm nhạt đi để báo hiệu — làm
   // nhạt chỉ khiến chỉ báo tụt xuống 2.56:1 và biến thành tín hiệu chỉ-bằng-màu.
-  if (!direction) return <span className="text-zinc-500 dark:text-zinc-400">↕</span>;
+  if (!direction) return <span className="text-fg-muted">↕</span>;
   return <span>{direction === "asc" ? "↑" : "↓"}</span>;
 }
 
@@ -302,7 +302,7 @@ export function TransactionsTable({
               className={`flex h-10 items-center justify-center gap-1 rounded-lg border px-1 text-xs font-medium transition ${
                 sorted
                   ? "border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100"
-                  : "border-zinc-200 text-zinc-500 hover:border-zinc-300 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-zinc-600"
+                  : "border-zinc-200 text-fg-muted hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600"
               }`}
             >
               {label}
@@ -325,13 +325,13 @@ export function TransactionsTable({
             <div
               key={row.id}
               onClick={() => setSelected(t)}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+              className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface p-3"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
                   {t.description}
                 </p>
-                <div className="mt-1 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                <div className="mt-1 flex items-center gap-2 text-xs text-fg-muted">
                   <span className="whitespace-nowrap">{formatDate(t.date)}</span>
                   {/* h-9 (36px): chưa đủ 44px như các nút khác trong repo, và đó
                       là đánh đổi có chủ ý — chip nằm giữa một dòng chữ nhỏ trong
@@ -352,8 +352,8 @@ export function TransactionsTable({
                 <span
                   className={`text-sm font-semibold whitespace-nowrap ${
                     t.amount < 0
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-green-700 dark:text-green-400"
+                      ? "text-danger"
+                      : "text-success"
                   }`}
                 >
                   {formatVnd(t.amount)}
@@ -388,7 +388,7 @@ export function TransactionsTable({
             {table.getHeaderGroups().map((group) => (
               <tr
                 key={group.id}
-                className="border-b border-zinc-200 text-left text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"
+                className="border-b border-border text-left text-zinc-500 dark:text-zinc-400"
               >
                 {group.headers.map((header) => (
                   <th

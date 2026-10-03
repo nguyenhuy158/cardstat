@@ -84,44 +84,44 @@ export default function OverviewPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">{OVERVIEW_DESCRIPTION}</p>
+        <p className="mb-4 text-sm text-fg-muted">{OVERVIEW_DESCRIPTION}</p>
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-          <div className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Tổng chi tiêu</div>
-            <div className="mt-1 text-base font-bold tabular-nums text-red-600 sm:text-2xl dark:text-red-400">
+          <div className="rounded-xl border border-border bg-surface p-3 sm:p-5">
+            <div className="text-xs text-fg-muted sm:text-sm">Tổng chi tiêu</div>
+            <div className="mt-1 text-base font-bold tabular-nums text-danger sm:text-2xl">
               {formatVnd(stats.totals.totalSpend)}
             </div>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Tổng thu / hoàn tiền</div>
-            <div className="mt-1 text-base font-bold tabular-nums text-green-700 sm:text-2xl dark:text-green-400">
+          <div className="rounded-xl border border-border bg-surface p-3 sm:p-5">
+            <div className="text-xs text-fg-muted sm:text-sm">Tổng thu / hoàn tiền</div>
+            <div className="mt-1 text-base font-bold tabular-nums text-success sm:text-2xl">
               {formatVnd(stats.totals.totalIncome)}
             </div>
           </div>
-          <div className="col-span-2 rounded-xl border border-zinc-200 bg-white p-3 sm:col-span-1 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Số giao dịch</div>
+          <div className="col-span-2 rounded-xl border border-border bg-surface p-3 sm:col-span-1 sm:p-5">
+            <div className="text-xs text-fg-muted sm:text-sm">Số giao dịch</div>
             <div className="mt-1 text-lg font-bold tabular-nums sm:text-2xl">{stats.totals.count || 0}</div>
           </div>
         </section>
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Tháng này</h2>
+        <h2 className="mb-3 text-sm font-semibold text-fg-muted">Tháng này</h2>
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          <div className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Đã chi tháng này</div>
-            <div className="mt-1 text-base font-bold tabular-nums text-red-600 sm:text-xl dark:text-red-400">
+          <div className="rounded-xl border border-border bg-surface p-3 sm:p-5">
+            <div className="text-xs text-fg-muted sm:text-sm">Đã chi tháng này</div>
+            <div className="mt-1 text-base font-bold tabular-nums text-danger sm:text-xl">
               {formatVnd(currentMonthSpend)}
             </div>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Dự đoán tháng tới</div>
+          <div className="rounded-xl border border-border bg-surface p-3 sm:p-5">
+            <div className="text-xs text-fg-muted sm:text-sm">Dự đoán tháng tới</div>
             <div className="mt-1 text-base font-bold tabular-nums sm:text-xl">
               {insights ? formatVnd(insights.predictedNextMonthSpend) : "—"}
             </div>
           </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Đã trả vào thẻ</div>
+          <div className="rounded-xl border border-border bg-surface p-3 sm:p-5">
+            <div className="text-xs text-fg-muted sm:text-sm">Đã trả vào thẻ</div>
             <div className="mt-1 text-base font-bold tabular-nums text-teal-600 sm:text-xl dark:text-teal-400">
               {formatVnd(currentMonthCardPayment)}
             </div>
@@ -130,14 +130,14 @@ export default function OverviewPage() {
             href="/charts"
             className={`rounded-xl border p-3 transition sm:p-5 ${
               overBudget.length > 0
-                ? "border-red-200 bg-red-50 hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:hover:bg-red-900/60"
-                : "border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                ? "border-red-200 bg-danger-soft hover:bg-red-100 dark:border-red-900 dark:hover:bg-red-900/60"
+                : "border-border bg-surface hover:bg-zinc-50 dark:hover:bg-zinc-800"
             }`}
           >
-            <div className="text-xs text-zinc-500 sm:text-sm dark:text-zinc-400">Ngân sách</div>
+            <div className="text-xs text-fg-muted sm:text-sm">Ngân sách</div>
             <div
               className={`mt-1 text-base font-bold sm:text-xl ${
-                overBudget.length > 0 ? "text-red-600 dark:text-red-400" : "text-teal-600 dark:text-teal-400"
+                overBudget.length > 0 ? "text-danger" : "text-teal-600 dark:text-teal-400"
               }`}
             >
               {budgets === null ? "—" : overBudget.length > 0 ? `${overBudget.length} vượt mức` : "Trong hạn mức"}
@@ -147,8 +147,8 @@ export default function OverviewPage() {
       </div>
 
       {topCategory && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
-          <h2 className="mb-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Danh mục chi nhiều nhất</h2>
+        <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
+          <h2 className="mb-2 text-sm font-semibold text-fg-muted">Danh mục chi nhiều nhất</h2>
           <div className="flex items-center justify-between gap-3">
             <span className="rounded-full px-2.5 py-1 text-sm font-medium" style={categoryChipStyle(topCategory.category)}>
               {topCategory.category}
@@ -158,28 +158,28 @@ export default function OverviewPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Giao dịch gần đây</h2>
+          <h2 className="text-sm font-semibold text-fg-muted">Giao dịch gần đây</h2>
           <Link href="/transactions" className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100">
             Xem tất cả
           </Link>
         </div>
         {recent === null ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Đang tải...</p>
+          <p className="text-sm text-fg-muted">Đang tải...</p>
         ) : recent.length === 0 ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Chưa có giao dịch nào. Hãy tải lên file sao kê PDF.</p>
+          <p className="text-sm text-fg-muted">Chưa có giao dịch nào. Hãy tải lên file sao kê PDF.</p>
         ) : (
           <ul className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             {recent.map((t) => (
               <li key={t.id} className="flex items-center justify-between gap-3 py-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{t.description}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(t.date)}</p>
+                  <p className="text-xs text-fg-muted">{formatDate(t.date)}</p>
                 </div>
                 <span
                   className={`shrink-0 text-sm font-semibold whitespace-nowrap ${
-                    t.amount < 0 ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"
+                    t.amount < 0 ? "text-danger" : "text-success"
                   }`}
                 >
                   {formatVnd(t.amount)}

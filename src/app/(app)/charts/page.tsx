@@ -91,7 +91,7 @@ export default function ChartsPage() {
   if (stats === null) return <ChartsSkeleton />;
 
   if (stats.byCategory.length === 0) {
-    return <p className="text-sm text-zinc-500 dark:text-zinc-400">Chưa có dữ liệu để vẽ biểu đồ. Hãy nhập sao kê trước.</p>;
+    return <p className="text-sm text-fg-muted">Chưa có dữ liệu để vẽ biểu đồ. Hãy nhập sao kê trước.</p>;
   }
 
   return (
@@ -100,7 +100,7 @@ export default function ChartsPage() {
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div
           id="section-category"
-          className="scroll-mt-14 rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
+          className="scroll-mt-14 rounded-xl border border-border bg-surface p-4 sm:p-5"
         >
           <h2 className="mb-4 font-semibold">Chi tiêu theo danh mục</h2>
           <CategoryChart data={stats.byCategory} />
@@ -108,7 +108,7 @@ export default function ChartsPage() {
 
         <div
           id="section-month"
-          className="scroll-mt-14 rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
+          className="scroll-mt-14 rounded-xl border border-border bg-surface p-4 sm:p-5"
         >
           <h2 className="mb-4 font-semibold">Chi tiêu và thu theo tháng</h2>
           <MonthChart data={stats.byMonth} />

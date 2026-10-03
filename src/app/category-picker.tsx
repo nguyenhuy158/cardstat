@@ -70,7 +70,7 @@ export function CategoryPicker({
           sideOffset={6}
           className="z-50 max-h-[min(60vh,var(--radix-select-content-available-height,60vh))] max-w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg sm:max-h-72 dark:border-zinc-700 dark:bg-zinc-800"
         >
-          <RadixSelect.ScrollUpButton className="flex h-6 items-center justify-center text-zinc-500 dark:text-zinc-400">
+          <RadixSelect.ScrollUpButton className="flex h-6 items-center justify-center text-fg-muted">
             <ScrollIcon up />
           </RadixSelect.ScrollUpButton>
           <RadixSelect.Viewport className="p-1">
@@ -94,7 +94,7 @@ export function CategoryPicker({
               </RadixSelect.Item>
             ))}
           </RadixSelect.Viewport>
-          <RadixSelect.ScrollDownButton className="flex h-6 items-center justify-center text-zinc-500 dark:text-zinc-400">
+          <RadixSelect.ScrollDownButton className="flex h-6 items-center justify-center text-fg-muted">
             <ScrollIcon />
           </RadixSelect.ScrollDownButton>
         </RadixSelect.Content>

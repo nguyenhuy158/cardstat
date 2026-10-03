@@ -39,7 +39,7 @@ function AlertRow({ alert }: { alert: CategoryAlert }) {
       >
         {alert.category}
       </span>
-      <span className={`text-sm font-medium ${up ? "text-red-600 dark:text-red-400" : "text-teal-600 dark:text-teal-400"}`}>
+      <span className={`text-sm font-medium ${up ? "text-danger" : "text-teal-600 dark:text-teal-400"}`}>
         {up ? "+" : ""}
         {Math.round(alert.changeRatio * 100)}% so với trung bình
       </span>
@@ -53,7 +53,7 @@ function InstallmentRow({ plan }: { plan: InstallmentPlan }) {
     <li className="py-2">
       <div className="flex items-center justify-between gap-3">
         <span className="truncate text-sm font-medium">{plan.description}</span>
-        <span className="whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
+        <span className="whitespace-nowrap text-sm text-fg-muted">
           {plan.totalInstallments ? `${plan.paidInstallments}/${plan.totalInstallments} kỳ` : `${plan.paidInstallments} kỳ`}
         </span>
       </div>
@@ -62,7 +62,7 @@ function InstallmentRow({ plan }: { plan: InstallmentPlan }) {
           <div className="h-1.5 rounded-full bg-teal-600 dark:bg-teal-500" style={{ width: `${percent}%` }} />
         </div>
       )}
-      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mt-1 text-xs text-fg-muted">
         {formatCurrency(plan.monthlyAmount)}/kỳ · đã trả {formatCurrency(plan.paidTotal)} · kỳ gần nhất {formatDate(plan.lastDate)}
       </p>
     </li>
@@ -79,16 +79,16 @@ export function InsightsPanel({ insights }: { insights: Insights }) {
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-1 font-semibold">Dự đoán chi tiêu tháng tới</h2>
         <p className="text-2xl font-bold">{formatCurrency(predictedNextMonthSpend)}</p>
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Trung bình chi tiêu các tháng gần nhất</p>
+        <p className="mt-1 text-xs text-fg-muted">Trung bình chi tiêu các tháng gần nhất</p>
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-2 font-semibold">Cảnh báo danh mục</h2>
         {categoryAlerts.length === 0 ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Không có danh mục nào lệch bất thường.</p>
+          <p className="text-sm text-fg-muted">Không có danh mục nào lệch bất thường.</p>
         ) : (
           <ul className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             {categoryAlerts.slice(0, 5).map((a) => (
@@ -98,10 +98,10 @@ export function InsightsPanel({ insights }: { insights: Insights }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-2 font-semibold">Trả góp đang theo dõi</h2>
         {installmentPlans.length === 0 ? (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Không có khoản trả góp nào.</p>
+          <p className="text-sm text-fg-muted">Không có khoản trả góp nào.</p>
         ) : (
           <ul className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
             {installmentPlans.map((p) => (

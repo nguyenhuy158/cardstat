@@ -12,7 +12,7 @@ export function FetchError({ onRetry }: { onRetry: () => void }) {
   return (
     <div
       role="alert"
-      className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900"
+      className="rounded-xl border border-border bg-surface p-4 sm:p-5"
     >
       <p className="text-sm text-zinc-600 dark:text-zinc-300">
         Không tải được dữ liệu. Kiểm tra kết nối rồi thử lại.

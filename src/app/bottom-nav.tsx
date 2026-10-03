@@ -75,7 +75,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Điều hướng chính"
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-zinc-200 bg-zinc-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:hidden dark:border-zinc-800 dark:bg-zinc-950/95"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-zinc-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm sm:hidden dark:bg-zinc-950/95"
     >
       {NAV_ITEMS.map((item) => {
         const isActive = item.href === "/" ? pathname === "/" : pathname === item.href;

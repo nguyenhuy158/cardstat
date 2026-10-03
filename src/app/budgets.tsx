@@ -74,7 +74,7 @@ function BudgetRow({
             }}
             className="w-28 rounded-md border border-zinc-200 bg-transparent px-2 py-1 text-right text-sm outline-none focus-visible:ring-2 focus-visible:ring-zinc-900/40 disabled:opacity-60 dark:border-zinc-700 dark:focus-visible:ring-zinc-100/40"
           />
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">đ</span>
+          <span className="text-xs text-fg-muted">đ</span>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ function BudgetRow({
               style={{ width: `${percent}%` }}
             />
           </div>
-          <p className={`mt-1 text-xs ${over ? "text-red-600 dark:text-red-400" : "text-zinc-500 dark:text-zinc-400"}`}>
+          <p className={`mt-1 text-xs ${over ? "text-danger" : "text-fg-muted"}`}>
             {formatCurrency(spend)} / {formatCurrency(limit)}
             {over && " — đã vượt ngân sách"}
           </p>
@@ -135,13 +135,13 @@ export function BudgetsPanel() {
   if (failed) return null;
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
       <h2 className="mb-1 font-semibold">Ngân sách theo danh mục</h2>
-      <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mb-2 text-xs text-fg-muted">
         Đặt hạn mức chi tiêu/tháng cho từng danh mục — để trống nghĩa là không theo dõi.
       </p>
       {budgets === null ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Đang tải...</p>
+        <p className="text-sm text-fg-muted">Đang tải...</p>
       ) : (
         <ul className="divide-y divide-zinc-100 dark:divide-zinc-800/50">
           {EDITABLE_CATEGORIES.map((category) => {
