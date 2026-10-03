@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 
 import { CategoryPicker } from "./category-picker";
-import { formatDate, formatDateTime, formatMonth } from "./format";
+import { formatDate, formatDateTime, formatMonth, formatVnd } from "./format";
 import { PAGE_SIZE } from "./pagination";
 import { Select } from "./select";
 import { TransactionDetailModal } from "./transaction-detail-modal";
@@ -58,10 +58,6 @@ const helper = createColumnHelper<typeof features, Transaction>();
 
 /** Cột canh phải: số tiền và nút xóa. */
 const RIGHT_ALIGNED = new Set(["amount", "actions"]);
-
-function formatVnd(n: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
-}
 
 // Columns phải ổn định giữa các lần render, nên chúng nằm ở module scope và lấy
 // `onDelete` từ `table.options.meta` thay vì closure.

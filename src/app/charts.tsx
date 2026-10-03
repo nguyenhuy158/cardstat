@@ -15,7 +15,7 @@ import {
 } from "recharts";
 
 import { CATEGORY_COLORS, SERIES_COLORS } from "./colors";
-import { formatMonth } from "./format";
+import { formatMonth, formatVnd } from "./format";
 
 const AXIS = "currentColor";
 
@@ -37,10 +37,6 @@ function useIsCompact() {
 
 function truncateLabel(s: string, max: number) {
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
-}
-
-function formatVnd(n: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
 }
 
 function formatCompact(n: number) {

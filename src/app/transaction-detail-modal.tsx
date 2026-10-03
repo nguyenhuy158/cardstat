@@ -3,12 +3,8 @@
 import { useEffect } from "react";
 
 import { CategoryPicker } from "./category-picker";
-import { formatDate, formatDateTime } from "./format";
+import { formatDate, formatDateTime, formatVnd } from "./format";
 import type { Transaction } from "./transactions-table";
-
-function formatVnd(n: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
-}
 
 /**
  * Modal xem chi tiết một giao dịch — bấm vào dòng/thẻ trong bảng mở ra, vì

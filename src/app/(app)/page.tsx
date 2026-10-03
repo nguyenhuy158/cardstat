@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import type { BudgetWithSpend } from "@/app/budgets";
 import { OVERVIEW_DESCRIPTION } from "@/app/copy";
 import { categoryChipStyle } from "@/app/colors";
 import { FetchError } from "@/app/fetch-error";
-import { formatDate } from "@/app/format";
+import { formatDate, formatVnd } from "@/app/format";
 import type { Insights } from "@/app/insights";
 import { OverviewSkeleton } from "@/app/skeleton";
 
@@ -17,13 +18,7 @@ type Stats = {
   cardPaymentsByMonth: { month: string; total: number }[];
 };
 
-type BudgetWithSpend = { category: string; monthlyLimit: number; currentMonthSpend: number };
-
 type RecentTransaction = { id: number; date: string; description: string; amount: number; category: string };
-
-function formatVnd(n: number) {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
-}
 
 /**
  * Trang "Tổng quan" — trang chủ (`/`). Ba thẻ đầu là tổng cả vòng đời (không

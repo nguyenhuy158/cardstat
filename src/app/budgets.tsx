@@ -4,16 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import { CATEGORIES, OTHER_CATEGORY } from "@/domain/services/categorize";
 import { categoryChipStyle } from "./colors";
+import { formatVnd } from "./format";
 
-type BudgetWithSpend = {
+export type BudgetWithSpend = {
   category: string;
   monthlyLimit: number;
   currentMonthSpend: number;
 };
-
-function formatCurrency(n: number): string {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
-}
 
 // Cùng thứ tự alphabet tiếng Việt như CategoryPicker, "Khác" ghim cuối — người
 // dùng quen mắt với thứ tự này ở trang Giao dịch.
@@ -87,7 +84,7 @@ function BudgetRow({
             />
           </div>
           <p className={`mt-1 text-xs ${over ? "text-danger" : "text-fg-muted"}`}>
-            {formatCurrency(spend)} / {formatCurrency(limit)}
+            {formatVnd(spend)} / {formatVnd(limit)}
             {over && " — đã vượt ngân sách"}
           </p>
         </>

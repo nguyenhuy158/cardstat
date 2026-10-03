@@ -1,5 +1,5 @@
 import { categoryChipStyle } from "./colors";
-import { formatDate } from "./format";
+import { formatDate, formatVnd } from "./format";
 
 type CategoryAlert = {
   category: string;
@@ -24,10 +24,6 @@ export type Insights = {
   categoryAlerts: CategoryAlert[];
   installmentPlans: InstallmentPlan[];
 };
-
-function formatCurrency(n: number): string {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
-}
 
 function AlertRow({ alert }: { alert: CategoryAlert }) {
   const up = alert.changeRatio > 0;
@@ -63,7 +59,7 @@ function InstallmentRow({ plan }: { plan: InstallmentPlan }) {
         </div>
       )}
       <p className="mt-1 text-xs text-fg-muted">
-        {formatCurrency(plan.monthlyAmount)}/kỳ · đã trả {formatCurrency(plan.paidTotal)} · kỳ gần nhất {formatDate(plan.lastDate)}
+        {formatVnd(plan.monthlyAmount)}/kỳ · đã trả {formatVnd(plan.paidTotal)} · kỳ gần nhất {formatDate(plan.lastDate)}
       </p>
     </li>
   );
@@ -81,7 +77,7 @@ export function InsightsPanel({ insights }: { insights: Insights }) {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="rounded-xl border border-border bg-surface p-4 sm:p-5">
         <h2 className="mb-1 font-semibold">Dự đoán chi tiêu tháng tới</h2>
-        <p className="text-2xl font-bold">{formatCurrency(predictedNextMonthSpend)}</p>
+        <p className="text-2xl font-bold">{formatVnd(predictedNextMonthSpend)}</p>
         <p className="mt-1 text-xs text-fg-muted">Trung bình chi tiêu các tháng gần nhất</p>
       </div>
 

@@ -1,10 +1,6 @@
-import { formatMonth } from "./format";
+import { formatMonth, formatVnd } from "./format";
 
 export type CardPaymentMonth = { month: string; total: number };
-
-function formatCurrency(n: number): string {
-  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
-}
 
 /**
  * Bảng "Đã trả vào thẻ theo tháng" trên trang Biểu đồ — chỉ tính giao dịch
@@ -31,7 +27,7 @@ export function CardPaymentsPanel({ data }: { data: CardPaymentMonth[] }) {
         {data.map((row) => (
           <li key={row.month} className="flex items-center justify-between gap-3 py-2">
             <span className="text-sm text-fg-muted">{formatMonth(row.month)}</span>
-            <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">{formatCurrency(row.total)}</span>
+            <span className="text-sm font-semibold text-teal-600 dark:text-teal-400">{formatVnd(row.total)}</span>
           </li>
         ))}
       </ul>

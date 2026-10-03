@@ -1,4 +1,4 @@
-// Bộ định dạng ngày/giờ dùng chung theo quy ước Việt Nam (DD/MM/YYYY, 24h).
+// Bộ định dạng ngày/giờ và tiền dùng chung theo quy ước Việt Nam (DD/MM/YYYY, 24h, VND).
 // Không rải Intl khắp component — mọi nơi cần hiển thị ngày/giờ import từ đây.
 
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -61,4 +61,11 @@ export function formatMonth(month: string): string {
   if (!m) return month;
   const [, y, mo] = m;
   return `${mo}/${y}`;
+}
+
+const VND = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" });
+
+/** 1234567 -> "1.234.567 ₫". `NaN`/0 hiển thị "0 ₫". */
+export function formatVnd(amount: number): string {
+  return VND.format(amount || 0);
 }
