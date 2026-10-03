@@ -56,6 +56,18 @@ jobs:
       run-build: true
       run-e2e: true
 
+  # The "ci pass" ruleset on main requires a status check named exactly
+  # "Typecheck, lint, build". Jobs of a reusable workflow report as
+  # "check / Check", so this gate job carries the required name and only
+  # passes when every job of the reusable check workflow passed.
+  ci-pass:
+    name: Typecheck, lint, build
+    needs: [check]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.check.result }}" = "success"
+
   lint:
     name: Lint (report-only)
     runs-on: ubuntu-latest
