@@ -99,7 +99,7 @@ export function BudgetsPanel() {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetch("/api/budgets")
+    fetch("/spending/api/budgets")
       .then((res) => res.json<BudgetWithSpend[]>())
       .then(setBudgets)
       .catch(() => setFailed(true));
@@ -112,7 +112,7 @@ export function BudgetsPanel() {
   }, [budgets]);
 
   async function handleSave(category: string, limit: number) {
-    const res = await fetch("/api/budgets", {
+    const res = await fetch("/spending/api/budgets", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category, limit }),

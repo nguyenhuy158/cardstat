@@ -44,7 +44,7 @@ export default function TransactionsPage() {
   // `res.json<T>()` ở đây là generic của Cloudflare Workers (không phải DOM
   // chuẩn) — không truyền T thì suy luận ra `unknown`, phải chỉ rõ kiểu.
   useEffect(() => {
-    fetch("/api/stats")
+    fetch("/spending/api/stats")
       .then((res) => res.json<StatsForFilters>())
       .then(setStatsForFilters)
       // Hỏng thì hai select lọc rỗng (đã có fallback EMPTY_*), bảng vẫn dùng
@@ -56,7 +56,7 @@ export default function TransactionsPage() {
     const params = new URLSearchParams();
     if (monthFilter) params.set("month", monthFilter);
     if (categoryFilter) params.set("category", categoryFilter);
-    fetch(`/api/transactions?${params}`)
+    fetch(`/spending/api/transactions?${params}`)
       .then((res) => res.json<Transaction[]>())
       .then((data) => {
         setTransactions(data);
@@ -69,7 +69,7 @@ export default function TransactionsPage() {
   }, [monthFilter, categoryFilter, refreshKey]);
 
   async function handleDelete(id: number) {
-    await fetch(`/api/transactions/${id}`, { method: "DELETE" });
+    await fetch(`/spending/api/transactions/${id}`, { method: "DELETE" });
     setRefreshKey((k) => k + 1);
   }
 
@@ -90,7 +90,7 @@ export default function TransactionsPage() {
     setPendingCategoryIds((ids) => new Set(ids).add(id));
     setTransactions((rows) => rows.map((t) => (t.id === id ? { ...t, category } : t)));
 
-    const res = await fetch(`/api/transactions/${id}`, {
+    const res = await fetch(`/spending/api/transactions/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category }),

@@ -42,22 +42,22 @@ export default function OverviewPage() {
   useEffect(() => {
     // `res.json<T>()` ở đây là generic của Cloudflare Workers (không phải DOM
     // chuẩn) — không truyền T thì suy luận ra `unknown`, phải chỉ rõ kiểu.
-    fetch("/api/stats")
+    fetch("/spending/api/stats")
       .then((res) => res.json<Stats>())
       .then(setStats)
       .catch(() => setFailed(true));
 
     // Ba phần dưới là bổ trợ: fetch hỏng chỉ ẩn phần đó, không kéo cả trang
     // vào trạng thái lỗi (giống cách /charts xử lý insights).
-    fetch("/api/insights")
+    fetch("/spending/api/insights")
       .then((res) => res.json<Insights>())
       .then(setInsights)
       .catch(() => {});
-    fetch("/api/budgets")
+    fetch("/spending/api/budgets")
       .then((res) => res.json<BudgetWithSpend[]>())
       .then(setBudgets)
       .catch(() => {});
-    fetch("/api/transactions")
+    fetch("/spending/api/transactions")
       .then((res) => res.json<RecentTransaction[]>())
       .then((rows) => setRecent(rows.slice(0, 5)))
       .catch(() => {});

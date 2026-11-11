@@ -41,7 +41,7 @@ export function UploadHistory({
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/uploads")
+    fetch("/spending/api/uploads")
       .then((res) => res.json<Upload[]>())
       .then((data) => {
         if (cancelled) return;
@@ -63,7 +63,7 @@ export function UploadHistory({
   async function handleDelete(id: number) {
     setDeleteError(null);
     setDeletingId(id);
-    const res = await fetch(`/api/uploads/${id}`, { method: "DELETE" }).catch(() => null);
+    const res = await fetch(`/spending/api/uploads/${id}`, { method: "DELETE" }).catch(() => null);
     setDeletingId(null);
     setConfirmingId(null);
 

@@ -26,7 +26,7 @@ function formatDate(date) {
 const month = flagValue("--month");
 const category = flagValue("--category");
 
-const url = new URL("/api/transactions", baseUrl);
+const url = new URL("/spending/api/transactions", baseUrl);
 if (month) url.searchParams.set("month", month);
 if (category) url.searchParams.set("category", category);
 

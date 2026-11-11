@@ -47,7 +47,7 @@ export default async function LoginPage() {
         </p>
 
         <a
-          href="/api/auth/sso"
+          href="/spending/api/auth/sso"
           className="mt-6 flex min-h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-200 px-4 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           <GoogleMark />

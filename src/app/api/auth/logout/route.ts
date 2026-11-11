@@ -8,6 +8,7 @@ import { ssoIssuer } from "@/infrastructure/auth/session";
  * session riêng nào để dọn.
  */
 export async function GET(req: NextRequest) {
-  const origin = new URL(req.url).origin;
-  return NextResponse.redirect(ssoUrl(await ssoIssuer(), "/logout", `${origin}/login`), 302);
+  const url = new URL(req.url);
+  const origin = url.hostname === "cardstats.huyab.click" ? "https://dash.huyab.click" : url.origin;
+  return NextResponse.redirect(ssoUrl(await ssoIssuer(), "/logout", `${origin}/spending/login`), 302);
 }

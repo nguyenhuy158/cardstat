@@ -15,7 +15,7 @@
 
 import { createHash } from "node:crypto";
 
-const baseUrl = (process.argv[2] || process.env.SMOKE_BASE_URL || "https://cardstats.huyab.click")
+const baseUrl = (process.argv[2] || process.env.SMOKE_BASE_URL || "https://cardstats.huyab.click/spending")
   .replace(/\/+$/, "");
 
 // Marker tiếng Việt lấy nguyên văn từ src/app/login/page.tsx — nếu ai đổi câu
@@ -27,7 +27,7 @@ const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.click";
 // Cloudflare edge cache nếu route nào đó lỡ bị đánh dấu cacheable) trả lại
 // một response cũ thay vì gọi thật tới worker.
 function cacheBustedUrl(path) {
-  const url = new URL(path, baseUrl);
+  const url = new URL(baseUrl + (path === "/" ? "" : path));
   url.searchParams.set("_cb", `${Date.now()}-${Math.random().toString(36).slice(2)}`);
   return url;
 }
@@ -93,7 +93,7 @@ record(
 // không còn trường hợp trả 200 kèm lớp guard render ở client như trước. ---
 const root = await get("/");
 const rootLocation = root.headers.get("location") || "";
-const rootPass = root.status >= 300 && root.status < 400 && rootLocation.includes("/login");
+const rootPass = root.status >= 300 && root.status < 400 && new URL(rootLocation, baseUrl).pathname === "/spending/login";
 record(
   'GET / (không auth) redirect sang "/login"',
   rootPass,

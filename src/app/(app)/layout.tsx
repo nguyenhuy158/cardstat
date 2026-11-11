@@ -54,7 +54,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               {/* Thẻ <a> chứ không phải <button>: đăng xuất là điều hướng sang SSO
                   (chỉ nó xoá được cookie của cả domain), không phải gọi API. */}
               <a
-                href="/api/auth/logout"
+                href="/spending/api/auth/logout"
                 className="flex h-11 items-center rounded-lg border border-zinc-200 px-3 font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
               >
                 Đăng xuất

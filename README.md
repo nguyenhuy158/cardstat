@@ -23,7 +23,7 @@ pnpm install
 pnpm dev
 ```
 
-Mở [http://localhost:3000](http://localhost:3000) để xem kết quả.
+Mở [http://localhost:3000/spending](http://localhost:3000/spending) để xem kết quả. Bản production nằm trong [dashboard](https://dash.huyab.click/spending).
 
 ## Đăng nhập (SSO)
 
@@ -94,9 +94,9 @@ bạn:
 ### Chạy smoke test tay
 
 ```bash
-node scripts/smoke.mjs https://cardstats.huyab.click
+node scripts/smoke.mjs https://cardstats.huyab.click/spending
 # hoặc test local:
-node scripts/smoke.mjs http://localhost:3000
+node scripts/smoke.mjs http://localhost:3000/spending
 ```
 
 Script kiểm tra `/login` trả 200 và có nội dung tiếng Việt thật, `/api/stats`

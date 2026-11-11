@@ -8,36 +8,36 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Cardstat",
     description:
       "Theo dõi sao kê thẻ, phân loại chi tiêu và kiểm soát tài chính cá nhân.",
-    start_url: "/",
+    start_url: "/spending",
     display: "standalone",
     background_color: "#fafafa",
     theme_color: "#fafafa",
     lang: "vi",
     icons: [
       {
-        src: "/icon",
+        src: "/spending/icon",
         sizes: "32x32",
         type: "image/png",
       },
       {
-        src: "/apple-icon",
+        src: "/spending/apple-icon",
         sizes: "180x180",
         type: "image/png",
       },
       {
-        src: "/manifest-icon-192.png",
+        src: "/spending/manifest-icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/manifest-icon-512.png",
+        src: "/spending/manifest-icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/manifest-icon-512.png",
+        src: "/spending/manifest-icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

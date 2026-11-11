@@ -218,7 +218,7 @@ jobs:
           # the very first failing `LAST_OUTPUT="$(...)"` assignment would
           # kill the step immediately instead of looping.
           set +e
-          URL="https://cardstats.huyab.click"
+          URL="https://cardstats.huyab.click/spending"
           ATTEMPTS=10
           DELAY=15
 

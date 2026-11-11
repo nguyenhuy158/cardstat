@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
+  basePath: "/spending",
+  redirects: async () => [
+    { source: "/", destination: "https://dash.huyab.click/spending", basePath: false, permanent: false },
+  ],
   // @huyab/sso ships TypeScript source (git dependency, no build step).
   transpilePackages: ["@huyab/sso"],
 };

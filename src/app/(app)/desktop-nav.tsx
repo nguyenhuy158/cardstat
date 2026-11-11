@@ -53,7 +53,7 @@ export function DesktopNav({ userLabel }: { userLabel: string }) {
         <p className="mb-2 truncate text-sm text-fg-muted">{userLabel}</p>
         {/* Thẻ <a>: đăng xuất là điều hướng sang SSO, không phải gọi API. */}
         <a
-          href="/api/auth/logout"
+          href="/spending/api/auth/logout"
           className="flex h-10 items-center justify-center rounded-lg border border-zinc-200 text-sm font-medium transition hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           Đăng xuất
