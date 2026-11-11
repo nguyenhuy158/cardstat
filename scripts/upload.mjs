@@ -24,7 +24,7 @@ try {
 const form = new FormData();
 form.append("file", new Blob([buffer], { type: "application/pdf" }), basename(filePath));
 
-const res = await authFetch(baseUrl, new URL("/api/upload", baseUrl), {
+const res = await authFetch(baseUrl, new URL("/spending/api/upload", baseUrl), {
   method: "POST",
   body: form,
 });

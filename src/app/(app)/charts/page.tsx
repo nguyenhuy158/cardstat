@@ -68,14 +68,14 @@ export default function ChartsPage() {
   useEffect(() => {
     // `res.json<T>()` ở đây là generic của Cloudflare Workers (không phải DOM
     // chuẩn) — không truyền T thì suy luận ra `unknown`, phải chỉ rõ kiểu.
-    fetch("/api/stats")
+    fetch("/spending/api/stats")
       .then((res) => res.json<Stats>())
       .then(setStats)
       .catch(() => setFailed(true));
 
     // Insight là phần bổ trợ: fetch hỏng chỉ ẩn khu vực này, không kéo cả
     // trang vào trạng thái lỗi (hai biểu đồ chính vẫn dùng được).
-    fetch("/api/insights")
+    fetch("/spending/api/insights")
       .then((res) => res.json<Insights>())
       .then(setInsights)
       .catch(() => {});

@@ -19,6 +19,7 @@ import { assert, assertLocalOnly, BASE, findChromium } from "@huyab/e2e";
 import { chromium } from "playwright-core";
 
 const SSO_TOKEN = process.env.E2E_SSO_TOKEN;
+const APP = BASE + "/spending";
 const WAIT = { timeout: 20000 };
 // Nguyen van tu src/app/login/page.tsx (giong scripts/smoke.mjs).
 const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.click";
@@ -45,19 +46,19 @@ page.on("pageerror", (error) => {
 
 try {
   // ---- Phan 1: chi doc, an toan cho prod ----
-  await page.goto(BASE + "/");
-  await page.waitForURL("**/login", WAIT);
+  await page.goto(APP);
+  await page.waitForURL("**/spending/login", WAIT);
   await page.getByText(LOGIN_MARKER).waitFor(WAIT);
   await page.getByRole("link", { name: "Tiếp tục với Google" }).waitFor(WAIT);
   ok("logged-out / redirects to the SSO login page");
 
-  const stats = await page.request.get(BASE + "/api/stats");
+  const stats = await page.request.get(APP + "/api/stats");
   assert(stats.status() === 401, `/api/stats phai 401, got ${stats.status()}`);
-  const transactions = await page.request.get(BASE + "/api/transactions");
+  const transactions = await page.request.get(APP + "/api/transactions");
   assert(transactions.status() === 401, `/api/transactions phai 401, got ${transactions.status()}`);
   ok("API rejects anonymous requests");
 
-  const manifest = await page.request.get(BASE + "/manifest.webmanifest");
+  const manifest = await page.request.get(APP + "/manifest.webmanifest");
   assert(manifest.ok(), `GET /manifest.webmanifest tra ${manifest.status()}`);
   assert((await manifest.json()).short_name === "Cardstat", "manifest phai co short_name Cardstat");
   ok("web manifest is served");
@@ -67,12 +68,12 @@ try {
     const description = `E2E Coffee ${Date.now()}`;
     const today = new Date().toISOString().slice(0, 10);
     await context.addCookies([{ name: "huyab_sso", value: SSO_TOKEN, url: BASE }]);
-    await page.goto(BASE + "/");
-    await page.waitForURL(BASE + "/", WAIT);
+    await page.goto(APP);
+    await page.waitForURL(APP, WAIT);
 
     const created = await page.evaluate(
       (body) =>
-        fetch("/api/transactions", {
+        fetch("/spending/api/transactions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -88,17 +89,17 @@ try {
     await recentItem.getByText(/-123\.456\s₫/).waitFor(WAIT);
     ok("overview lists the transaction with VND formatting");
 
-    await page.goto(BASE + "/charts");
+    await page.goto(APP + "/charts");
     await page.getByText("Ngân sách theo danh mục").waitFor(WAIT);
     ok("charts page renders with data");
 
-    await page.goto(BASE + "/transactions");
+    await page.goto(APP + "/transactions");
     await page.getByPlaceholder("Tìm mô tả, danh mục, số tiền...").fill(description);
     const row = page.locator("tr", { hasText: description });
     await row.waitFor(WAIT);
     await row.getByRole("button", { name: "Xóa", exact: true }).click();
     await row.waitFor({ state: "detached", ...WAIT });
-    const remaining = await page.evaluate(() => fetch("/api/transactions").then((response) => response.json()));
+    const remaining = await page.evaluate(() => fetch("/spending/api/transactions").then((response) => response.json()));
     assert(
       !remaining.some((transaction) => transaction.description === description),
       "giao dich da xoa van con trong /api/transactions",

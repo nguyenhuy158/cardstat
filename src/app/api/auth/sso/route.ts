@@ -8,6 +8,7 @@ import { ssoIssuer } from "@/infrastructure/auth/session";
  * domain; app này chỉ verify cookie do nó phát ra.
  */
 export async function GET(req: NextRequest) {
-  const origin = new URL(req.url).origin;
-  return NextResponse.redirect(ssoUrl(await ssoIssuer(), "/login", `${origin}/`), 302);
+  const url = new URL(req.url);
+  const origin = url.hostname === "cardstats.huyab.click" ? "https://dash.huyab.click" : url.origin;
+  return NextResponse.redirect(ssoUrl(await ssoIssuer(), "/login", `${origin}/spending`), 302);
 }

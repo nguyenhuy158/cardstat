@@ -8,7 +8,7 @@ function vnd(n) {
   return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n || 0);
 }
 
-const res = await authFetch(baseUrl, new URL("/api/stats", baseUrl));
+const res = await authFetch(baseUrl, new URL("/spending/api/stats", baseUrl));
 const body = await res.json();
 
 if (!res.ok) {
