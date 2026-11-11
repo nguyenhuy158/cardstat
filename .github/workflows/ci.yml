@@ -293,6 +293,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Install Chromium
-        run: pnpm dlx playwright@1.63.0 install --with-deps chromium
+        run: pnpm exec playwright-core install chromium
       - name: E2E against https://cardstats.huyab.click
         run: pnpm e2e:prod
