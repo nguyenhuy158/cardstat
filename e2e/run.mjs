@@ -39,7 +39,7 @@ await run(
 const server = await startServer({
   command: "pnpm",
   args: ["exec", "wrangler", "dev", "--ip", "127.0.0.1", "--port", PORT, "--var", `SSO_ISSUER:${sso.issuer}`],
-  readyUrl: `${BASE}/login`,
+  readyUrl: `${BASE}/spending/login`,
 });
 
 let failed = false;
