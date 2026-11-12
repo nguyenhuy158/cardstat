@@ -1,4 +1,4 @@
--- Bỏ better-auth, chuyển sang cookie SSO của auth.huyab.click. App không còn
+-- Bỏ better-auth, chuyển sang cookie SSO của auth.huyab.cfd. App không còn
 -- giữ session hay mật khẩu nào nữa nên ba bảng này thành rác.
 --
 -- Bảng `user` GIỮ LẠI: `cardstat_transactions.user_id` và `cardstat_uploads`

@@ -1,5 +1,5 @@
 /**
- * Các route /api đều đòi cookie SSO `huyab_sso` của auth.huyab.click. CLI không
+ * Các route /api đều đòi cookie SSO `huyab_sso` của auth.huyab.cfd. CLI không
  * tự đăng nhập được (SSO là luồng OAuth trên trình duyệt), nên phải mang sẵn
  * cookie: mở app trên trình duyệt, copy giá trị cookie `huyab_sso` trong
  * devtools rồi đặt vào env HUYAB_SSO_COOKIE.

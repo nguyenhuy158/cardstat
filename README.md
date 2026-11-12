@@ -23,12 +23,12 @@ pnpm install
 pnpm dev
 ```
 
-Mở [http://localhost:3000/spending](http://localhost:3000/spending) để xem kết quả. Bản production nằm trong [dashboard](https://dash.huyab.click/spending).
+Mở [http://localhost:3000/spending](http://localhost:3000/spending) để xem kết quả. Bản production nằm trong [dashboard](https://dash.huyab.cfd/spending).
 
 ## Đăng nhập (SSO)
 
 Toàn bộ trang và API nằm sau cookie SSO `huyab_sso` do
-[auth.huyab.click](https://auth.huyab.click) phát hành — cùng một lần đăng nhập
+[auth.huyab.cfd](https://auth.huyab.cfd) phát hành — cùng một lần đăng nhập
 dùng chung với các app khác trên domain. App này chỉ giữ khoá công khai lấy từ
 JWKS của issuer nên không thể tự phát token cho mình hay cho app khác.
 
@@ -42,7 +42,7 @@ Các đường liên quan:
 - `/api/auth/logout` — redirect tới `<issuer>/logout`; cookie thuộc cả domain
   nên chỉ SSO service xoá được, app không có session riêng để dọn
 - `SSO_ISSUER` (vars trong `wrangler.jsonc`, hoặc `.dev.vars` khi chạy local)
-  đổi được issuer; mặc định `https://auth.huyab.click`
+  đổi được issuer; mặc định `https://auth.huyab.cfd`
 
 Hai tầng kiểm tra:
 
@@ -94,7 +94,7 @@ bạn:
 ### Chạy smoke test tay
 
 ```bash
-node scripts/smoke.mjs https://cardstats.huyab.click/spending
+node scripts/smoke.mjs https://cardstats.huyab.cfd/spending
 # hoặc test local:
 node scripts/smoke.mjs http://localhost:3000/spending
 ```

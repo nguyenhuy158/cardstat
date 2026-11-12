@@ -9,6 +9,6 @@ import { ssoIssuer } from "@/infrastructure/auth/session";
  */
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
-  const origin = url.hostname === "cardstats.huyab.click" ? "https://dash.huyab.click" : url.origin;
+  const origin = url.hostname === "cardstats.huyab.cfd" ? "https://dash.huyab.cfd" : url.origin;
   return NextResponse.redirect(ssoUrl(await ssoIssuer(), "/logout", `${origin}/spending/login`), 302);
 }

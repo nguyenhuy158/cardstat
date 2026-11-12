@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "e2e": "node e2e/run.mjs",
-    "e2e:prod": "E2E_BASE_URL=https://cardstats.huyab.click node e2e/ui-smoke.mjs",
+    "e2e:prod": "E2E_BASE_URL=https://cardstats.huyab.cfd node e2e/ui-smoke.mjs",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
@@ -18,7 +18,7 @@
     "tx": "node scripts/list.mjs"
   },
   "dependencies": {
-    "@huyab/sso": "github:nguyenhuy158/kit#v0.1.0&path:packages/sso",
+    "@huyab/sso": "github:nguyenhuy158/kit#v0.2.0&path:packages/sso",
     "@radix-ui/react-select": "^2.3.7",
     "@tanstack/react-table": "^9.1.0",
     "date-fns": "^4.4.0",
@@ -29,8 +29,8 @@
     "unpdf": "^1.8.0"
   },
   "devDependencies": {
-    "@huyab/config": "github:nguyenhuy158/kit#v0.1.0&path:packages/config",
-    "@huyab/e2e": "github:nguyenhuy158/kit#v0.1.0&path:packages/e2e",
+    "@huyab/config": "github:nguyenhuy158/kit#v0.2.0&path:packages/config",
+    "@huyab/e2e": "github:nguyenhuy158/kit#v0.2.0&path:packages/e2e",
     "@opennextjs/cloudflare": "^1.20.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^26.2.0",

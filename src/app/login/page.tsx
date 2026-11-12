@@ -43,7 +43,7 @@ export default async function LoginPage() {
       <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 text-center sm:p-7">
         <h1 className="text-lg font-bold sm:text-xl">Thống kê chi tiêu thẻ tín dụng</h1>
         <p className="mt-2 text-sm text-fg-muted">
-          Đăng nhập bằng tài khoản huyab.click
+          Đăng nhập bằng tài khoản huyab.cfd
         </p>
 
         <a
@@ -55,7 +55,7 @@ export default async function LoginPage() {
         </a>
 
         <p className="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
-          Đăng nhập một lần, dùng chung cho các app trên huyab.click.
+          Đăng nhập một lần, dùng chung cho các app trên huyab.cfd.
         </p>
       </div>
     </div>
