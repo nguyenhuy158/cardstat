@@ -1,4 +1,4 @@
 # Issuer của cookie SSO dùng chung cho domain (mặc định đã đúng, chỉ đổi khi
 # chạy một SSO service khác, ví dụ bản local). Giá trị production nằm trong
 # `vars` của wrangler.jsonc — không phải secret, chỉ là URL công khai.
-SSO_ISSUER="https://auth.huyab.click"
+SSO_ISSUER="https://auth.huyab.cfd"

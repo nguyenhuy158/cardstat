@@ -5,7 +5,7 @@
 //
 // Dùng:
 //   node scripts/smoke.mjs [baseUrl]
-//   node scripts/smoke.mjs                     # mặc định https://cardstats.huyab.click
+//   node scripts/smoke.mjs                     # mặc định https://cardstats.huyab.cfd
 //   node scripts/smoke.mjs http://localhost:3000
 //   SMOKE_BASE_URL=... node scripts/smoke.mjs
 //
@@ -15,13 +15,13 @@
 
 import { createHash } from "node:crypto";
 
-const baseUrl = (process.argv[2] || process.env.SMOKE_BASE_URL || "https://cardstats.huyab.click/spending")
+const baseUrl = (process.argv[2] || process.env.SMOKE_BASE_URL || "https://cardstats.huyab.cfd/spending")
   .replace(/\/+$/, "");
 
 // Marker tiếng Việt lấy nguyên văn từ src/app/login/page.tsx — nếu ai đổi câu
 // này ở đó thì cũng phải sửa ở đây, cố ý làm vậy để test không "giả pass" bằng
 // một chuỗi chung chung như "Đăng nhập".
-const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.click";
+const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.cfd";
 
 // Query param đổi mỗi lần gọi để tránh bất kỳ tầng cache nào (browser cache,
 // Cloudflare edge cache nếu route nào đó lỡ bị đánh dấu cacheable) trả lại

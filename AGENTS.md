@@ -66,7 +66,7 @@ open-next.config.ts            # OpenNext Cloudflare adapter config
   smoke suite `e2e/ui-smoke.mjs` (playwright-core). Set
   `PLAYWRIGHT_CHROMIUM_PATH` if no Chromium/Chrome is found.
 - `pnpm e2e:prod`: read-only browser smoke against
-  https://cardstats.huyab.click (GET `/`, `/login`, `/api/stats`,
+  https://cardstats.huyab.cfd (GET `/`, `/login`, `/api/stats`,
   `/api/transactions`, `/manifest.webmanifest`; no login, no writes).
 - `pnpm exec wrangler d1 migrations apply db --local|--remote`: apply D1
   migrations (production is never migrated automatically).
@@ -115,7 +115,7 @@ changes. Remember to apply new D1 migrations to production by hand.
 
 ## Ecosystem
 
-See the [huyab.click ecosystem map](https://github.com/nguyenhuy158/kit/blob/main/docs/ECOSYSTEM.md) for how all personal repos connect.
+See the [huyab.cfd ecosystem map](https://github.com/nguyenhuy158/kit/blob/main/docs/ECOSYSTEM.md) for how all personal repos connect.
 
 - Kit packages: `@huyab/sso` (`verifySsoToken`, `ssoUrl`, `SSO_COOKIE`,
   `DEFAULT_SSO_ISSUER` in `src/infrastructure/auth/session.ts`; cookie only,
@@ -124,7 +124,7 @@ See the [huyab.click ecosystem map](https://github.com/nguyenhuy158/kit/blob/mai
   `assertLocalOnly` in `e2e/`), `@huyab/config` (tsconfig base only; linting
   stays on ESLint), reusable CI
   `nguyenhuy158/kit/.github/workflows/check.yml@v0.1.0`.
-- Talks to: sso (JWKS at `auth.huyab.click`, login/logout redirects), shared
+- Talks to: sso (JWKS at `auth.huyab.cfd`, login/logout redirects), shared
   D1 `db` (`cardstat_` prefix plus the unprefixed `user` table). No other app
   calls it; mytools pings it from its `/projects` page.
 

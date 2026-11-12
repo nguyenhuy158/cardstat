@@ -9,7 +9,7 @@
 //    Tong quan, tim + xoa o trang Giao dich, trang Bieu do.
 //
 // `pnpm e2e` = OpenNext build + wrangler dev local + ca 2 phan.
-// `pnpm e2e:prod` = chi phan 1 tren https://cardstats.huyab.click.
+// `pnpm e2e:prod` = chi phan 1 tren https://cardstats.huyab.cfd.
 //
 // Bien moi truong:
 // - E2E_BASE_URL: mac dinh http://127.0.0.1:8787 (BASE cua @huyab/e2e)
@@ -22,7 +22,7 @@ const SSO_TOKEN = process.env.E2E_SSO_TOKEN;
 const APP = BASE + "/spending";
 const WAIT = { timeout: 20000 };
 // Nguyen van tu src/app/login/page.tsx (giong scripts/smoke.mjs).
-const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.click";
+const LOGIN_MARKER = "Đăng nhập bằng tài khoản huyab.cfd";
 
 // Phan 2 ghi D1: token chi duoc dung voi server local, e2e:prod phai chi doc.
 if (SSO_TOKEN) assertLocalOnly();

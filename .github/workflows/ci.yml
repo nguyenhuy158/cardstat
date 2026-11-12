@@ -228,7 +228,7 @@ jobs:
           # the very first failing `LAST_OUTPUT="$(...)"` assignment would
           # kill the step immediately instead of looping.
           set +e
-          URL="https://cardstats.huyab.click/spending"
+          URL="https://cardstats.huyab.cfd/spending"
           ATTEMPTS=10
           DELAY=15
 
@@ -294,5 +294,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Install Chromium
         run: pnpm exec playwright-core install chromium
-      - name: E2E against https://cardstats.huyab.click
+      - name: E2E against https://cardstats.huyab.cfd
         run: pnpm e2e:prod

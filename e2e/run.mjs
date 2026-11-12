@@ -2,7 +2,7 @@
 // SSO gia -> bat worker that bang `wrangler dev` (giong `pnpm preview`) -> chay
 // smoke suite -> tat het.
 //
-// SSO that (auth.huyab.click) khong dung duoc trong test, nen dung
+// SSO that (auth.huyab.cfd) khong dung duoc trong test, nen dung
 // `startSsoMock` cua @huyab/e2e (JWKS + token ky bang khoa sinh luc chay);
 // worker duoc bat voi SSO_ISSUER tro ve day nen cookie `huyab_sso` hop le.
 //

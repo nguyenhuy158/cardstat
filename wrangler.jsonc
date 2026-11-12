@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     // Issuer của cookie SSO `huyab_sso`. Public URL, không phải secret.
-    "SSO_ISSUER": "https://auth.huyab.click"
+    "SSO_ISSUER": "https://auth.huyab.cfd"
   },
   "assets": {
     "directory": ".open-next/assets",
@@ -15,7 +15,7 @@
   "workers_dev": false,
   "routes": [
     {
-      "pattern": "cardstats.huyab.click",
+      "pattern": "cardstats.huyab.cfd",
       "custom_domain": true
     }
   ],

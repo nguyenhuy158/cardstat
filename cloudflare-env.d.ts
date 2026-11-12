@@ -4,7 +4,7 @@
 interface __BaseEnv_CloudflareEnv {
 	DB: D1Database;
 	ASSETS: Fetcher;
-	SSO_ISSUER: "https://auth.huyab.click";
+	SSO_ISSUER: "https://auth.huyab.cfd";
 }
 declare namespace Cloudflare {
 	interface GlobalProps {
