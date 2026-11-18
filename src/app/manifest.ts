@@ -15,12 +15,12 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "vi",
     icons: [
       {
-        src: "/spending/icon",
+        src: "/spending/icon.png",
         sizes: "32x32",
         type: "image/png",
       },
       {
-        src: "/spending/apple-icon",
+        src: "/spending/apple-icon.png",
         sizes: "180x180",
         type: "image/png",
       },
@@ -37,7 +37,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
       {
-        src: "/spending/manifest-icon-512.png",
+        src: "/spending/manifest-icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
