@@ -4,12 +4,13 @@
 // cache sai sẽ lộ hoặc làm cũ dữ liệu người khác trên cùng thiết bị dùng
 // chung. Chỉ cache-first cho icon do route tự sinh (nội dung không đổi theo
 // user/session).
-const CACHE_NAME = "cardstat-static-v1";
+const CACHE_NAME = "cardstat-static-v2";
 const STATIC_CACHE_PATHS = [
-  "/icon",
-  "/apple-icon",
-  "/manifest-icon-192.png",
-  "/manifest-icon-512.png",
+  "/spending/icon.png",
+  "/spending/apple-icon.png",
+  "/spending/manifest-icon-192.png",
+  "/spending/manifest-icon-512.png",
+  "/spending/manifest-icon-maskable-512.png",
 ];
 
 self.addEventListener("install", (event) => {
